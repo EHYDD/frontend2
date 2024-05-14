@@ -1,4 +1,4 @@
-import { History, LogOut, LucideReceiptText, Settings, UserSearch } from "lucide-react";
+import { History, LogOut, LucideReceiptText,  Settings, UserSearch } from "lucide-react";
 import SidePanelButton from "../components/sidePanelButton";
 import { useState } from "react";
 import { Link } from "react-router-dom";
