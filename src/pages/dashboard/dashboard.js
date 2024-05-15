@@ -2,6 +2,8 @@ import { History, LogOut, LucideReceiptText,  Settings, UserSearch } from "lucid
 import SidePanelButton from "../components/sidePanelButton";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import TermsAndRules from "../TermsAndRules/termsAndRules";
+import LaborRequestPage from "../laborRequestPage/laborRequestPage";
 
 export default function Dashboard() {
     var [currentPage, changePage] = useState(0)
@@ -72,16 +74,17 @@ export default function Dashboard() {
             </div>
 
             {/* MAIN PANEL */}
-            <div className="h-screen w-full p-6">
-                <div className="h-full w-full rounded-xl bg-slate-200 font-bold text-xl">
-                    <div className="p-10">
-                        {
+            <div className="h-screen w-full p-5 overflow-scroll">
+                <div className="h-full w-full rounded-xl bg-white text-black text-xl overflow-scroll ">
+                    <div className="h-full overflow-scroll">
+                        { 
                             currentPage === 0 ? 
-                            <div> LABOR REQUEST </div> :
+                                <LaborRequestPage /> :
                             currentPage === 1 ? 
                             <div> ORDER HISTORY </div> :
                             currentPage === 2 ? 
-                            <div> TERMS AND RULES </div> :
+                                <TermsAndRules />
+                             :
                             <div> PROFILE SETTINGS </div>
                         }
                     </div>
