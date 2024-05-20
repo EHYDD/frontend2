@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import TermsAndRules from "../TermsAndRules/termsAndRules";
 import LaborRequestPage from "../laborRequestPage/laborRequestPage";
+import OrderHistory from "../orderHistory/orderHistoryPage";
 
 export default function Dashboard() {
     var [currentPage, changePage] = useState(0)
@@ -81,7 +82,7 @@ export default function Dashboard() {
                             currentPage === 0 ? 
                                 <LaborRequestPage /> :
                             currentPage === 1 ? 
-                            <div> ORDER HISTORY </div> :
+                                <OrderHistory /> :
                             currentPage === 2 ? 
                                 <TermsAndRules />
                              :

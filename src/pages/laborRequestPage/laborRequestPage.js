@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Steps } from 'antd';
+import { Steps, Button } from 'antd';
 import { Col, InputNumber, Row, Slider } from 'antd';
 
 import { Calendar, theme } from 'antd';
@@ -11,9 +11,33 @@ const { RangePicker } = DatePicker;
 
 export default function LaborRequestPage() {
     const [current, setCurrent] = useState(0);
-    const onChangeSteps = (value) => {
+    const [current2, setCurrent2] = useState(0);
+    const [loadings, setLoadings] = useState([]);
+    const [available, setAvailability] = useState(false);
+
+    const enterLoading = (index) => {
+        setLoadings((prevLoadings) => {
+          const newLoadings = [...prevLoadings];
+          newLoadings[index] = true;
+          return newLoadings;
+        });
+        setTimeout(() => {
+          setLoadings((prevLoadings) => {
+            const newLoadings = [...prevLoadings];
+            newLoadings[index] = false;
+            setAvailability(!available);
+            return newLoadings;
+          });
+        }, 2000);
+      };
+
+      const onChangeSteps = (value) => {
         console.log('onChange:', value);
         setCurrent(value);
+    };
+    const onChangeSteps2 = (value) => {
+        console.log('onChange:', value);
+        setCurrent2(value);
     };
 
     const [inputValue, setInputValue] = useState(1);
@@ -84,35 +108,61 @@ export default function LaborRequestPage() {
                     {
                         title: <div className="font-semibold text-2xl"> Step 3 </div>,
                         description: <div className='py-5'> 
-                            <div className="pt-2 pb-2 pl-2 text-xl font-semibold"> Select Location </div>
-                            <select className="select select-bordered w-full max-w-xs bg-white text-xl">
-                                <option disabled selected> Pick location </option>
-                                <option> Location 1 </option>
-                                <option> Location 2 </option>
-                                <option> Location 3 </option>
-                                <option> Location 4 </option>
-                            </select>
+                            {/* <div className="pt-2 pb-2 pl-2 text-xl font-semibold"> Check Availability </div> */}
+                            {
+                                available === true ? <div> Labor and Schedule is Available! </div> :
+                                    <Button type="primary" loading={loadings[0]} onClick={() => enterLoading(0)}>
+                                        Check Availability
+                                    </Button>
+                            }                        
                         </div>,
                     },
-                    {
-                        title: <div className="font-semibold text-2xl"> Step 4 </div>,
-                        description: <div className='py-5'> 
-                        <div className="pt-2 pb-2 pl-2 text-xl font-semibold"> Select Service Type </div>
-                            <select className="select select-bordered w-full max-w-xs bg-white text-xl">
-                                <option disabled selected> Service Type </option>
-                                <option> Labor </option>
-                                <option> Cleaning </option>
-                                <option> More Service </option>
-                                <option> More Slavery </option>
-                            </select>
-                        </div>,
-                    },
-                    {
-                        title: <div className="font-semibold text-2xl"> Done! </div>,
-                        description: "",
-                    },
-                    ]}
-                />            
+                   ]}
+                />        
+                
+                {
+                    available === true ? 
+                    <Steps
+                        current={current2}
+                        onChange={onChangeSteps2}
+                        direction="vertical"
+                        items={[
+                        {
+                            title: <div className="font-semibold text-2xl"> Step 4 </div>,
+                            description: <div className='py-5'> 
+                                <div className="pt-2 pb-2 pl-2 text-xl font-semibold"> Select Location </div>
+                                <select className="select select-bordered w-full max-w-xs bg-white text-xl">
+                                    <option disabled selected> Pick location </option>
+                                    <option> Location 1 </option>
+                                    <option> Location 2 </option>
+                                    <option> Location 3 </option>
+                                    <option> Location 4 </option>
+                                </select>
+                            </div>,
+                        },
+                        {
+                            title: <div className="font-semibold text-2xl"> Step 5 </div>,
+                            description: <div className='py-5'> 
+                            <div className="pt-2 pb-2 pl-2 text-xl font-semibold"> Select Service Type </div>
+                                <select className="select select-bordered w-full max-w-xs bg-white text-xl">
+                                    <option disabled selected> Service Type </option>
+                                    <option> Labor </option>
+                                    <option> Cleaning </option>
+                                    <option> More Service </option>
+                                    <option> More Slavery </option>
+                                </select>
+                            </div>,
+                        },
+                        {
+                            title: <div className="font-semibold text-2xl"> Done! </div>,
+                            description: <div className="pt-5"> 
+                                <Button type="primary" loading={loadings[0]} onClick={() => enterLoading(0)}>
+                                    Request Labor
+                                </Button>
+                            </div>,
+                        }]}
+                    /> : <div></div>
+                }
             </div>
 
             {/* SCHEDULE */}
