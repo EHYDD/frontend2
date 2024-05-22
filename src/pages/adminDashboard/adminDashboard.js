@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import OrderHistory from "../orderHistory/orderHistoryPage";
 import AdminMonthlySchedulePage from "../adminMonthlySchedulePage/adminMonthlySchedulePage";
+import AddNewDataPage from "../addNewDataPage/addNewDataPage";
 
 export default function AdminDashboard() {
     var [currentPage, changePage] = useState(0)
@@ -103,7 +104,7 @@ export default function AdminDashboard() {
                             currentPage === 4 ? 
                                 <div> ABCDEF GHIJKLM </div> :
                             currentPage === 5 ? 
-                                <div> ABCDEF GHIJKLM </div> :
+                                <AddNewDataPage /> :
                             <div> ABCDEF GHIJKLM </div>
                         }
                     </div>
