@@ -1,9 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useState } from 'react';
 
 import { Steps, Button } from 'antd';
 import { Col, InputNumber, Row, Slider } from 'antd';
 
-import { Calendar, theme } from 'antd';
 
 import { DatePicker } from 'antd';
 const { RangePicker } = DatePicker;
@@ -45,19 +45,8 @@ export default function LaborRequestPage() {
         setInputValue(newValue);
     };
 
-    const onPanelChange = (value, mode) => {
-        console.log(value.format('YYYY-MM-DD'), mode);
-    };
-
-    const { token } = theme.useToken();
-    const wrapperStyle = {
-        width: 450,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        borderRadius: token.borderRadiusLG,
-    };
-
     return(
-        <div className="flex gap-4 h-screen">
+        <div className="flex gap-4 h-screen w-4/5">
             <div className="p-8">
                 <div className="pb-6 text-2xl font-semibold"> Labor Request Form </div>
 
@@ -165,18 +154,6 @@ export default function LaborRequestPage() {
                 }
             </div>
 
-            {/* SCHEDULE */}
-            <div className="w-3/5 p-8 border-l-4 border-double">
-                <div className="pb-6 text-2xl font-semibold"> Labor Request Schedule </div>
-                <div className="pt-2 pb-12"> 
-                    This's the Availability Calendar section of our labor management platform! Here, employees can easily visualize the availability of labor for scheduling tasks across different dates and timeframes. The calendar provides a comprehensive overview of occupied dates, where labor resources have already been allocated, as well as available dates, where manpower is ready to be assigned.
-                </div>
-                <div className="flex justify-center">
-                    <div style={wrapperStyle}>
-                        <Calendar fullscreen={false} onPanelChange={onPanelChange} />
-                    </div>
-                </div>
-            </div>
         </div>
     )
 }
