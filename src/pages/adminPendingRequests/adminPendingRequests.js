@@ -114,8 +114,8 @@ export default function AdminPendingRequests() {
     ];
     return (
         <div className="p-10">
-            <div className="font-bold text-xl pb-5"> Pending Requests </div>
-            <p className="pb-10">
+            <div className="font-semibold text-lg pb-2"> Pending Requests </div>
+            <p className="pb-10 text-base">
                 These are requests waiting for your approval or rejects. Kindly
                 review each request and respond appropriately.
             </p>

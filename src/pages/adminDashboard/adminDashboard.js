@@ -7,7 +7,7 @@ import {
     Sparkle,
     UserSearch,
 } from "lucide-react";
-import SidePanelButton from "../components/sidePanelButton";
+// import SidePanelButton from "../components/sidePanelButton";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import OrderHistory from "../orderHistory/orderHistoryPage";
@@ -15,6 +15,7 @@ import AdminMonthlySchedulePage from "../adminMonthlySchedulePage/adminMonthlySc
 import AddNewDataPage from "../addNewDataPage/addNewDataPage";
 import AdminAnalyticsPage from "../adminAnalyticsPage/adminAnalyticsPage";
 import AdminPendingRequests from "../adminPendingRequests/adminPendingRequests";
+import SidePanelButton from "../../components/sidePanelButton";
 
 export default function AdminDashboard() {
     var [currentPage, changePage] = useState(0);
@@ -81,7 +82,7 @@ export default function AdminDashboard() {
 
                 <div className="text-center py-16 pl-10 pr-5">
                     <Link to="/">
-                        <div className="flex justify-center text-white text-xl font-semibold py-5 rounded-2xl bg-zinc-800 hover:bg-emerald-500 hover:text-black">
+                        <div className="flex justify-center items-center text-white font-semibold py-2 rounded-xl bg-zinc-800 hover:bg-emerald-500 hover:text-black">
                             <LogOut size={20} />
                             <span className="pl-3">SIGN OUT</span>
                         </div>
