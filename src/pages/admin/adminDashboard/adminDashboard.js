@@ -7,18 +7,27 @@ import {
     Sparkle,
     UserSearch,
 } from "lucide-react";
-// import SidePanelButton from "../components/sidePanelButton";
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import OrderHistory from "../orderHistory/orderHistoryPage";
-import AdminMonthlySchedulePage from "../adminMonthlySchedulePage/adminMonthlySchedulePage";
+import { useNavigate } from "react-router-dom";
+import SidePanelButton from "../../../components/sidePanelButton";
+import AnalyticsPage from "../analyticsPage/analyticsPage";
+import PriorityRequests from "../priorityRequestsPage/priorityRequestsPage";
+import PendingRequests from "../pendingRequests/pendingRequests";
+import MonthlySchedulePage from "../monthlySchedulePage/monthlySchedulePage";
+import UserManagementPage from "../userManagementPage/userManagementPage";
+import LaborerManagementPage from "../laborerManagementPage/laborerManagementPage";
 import AddNewDataPage from "../addNewDataPage/addNewDataPage";
-import AdminAnalyticsPage from "../adminAnalyticsPage/adminAnalyticsPage";
-import AdminPendingRequests from "../adminPendingRequests/adminPendingRequests";
-import SidePanelButton from "../../components/sidePanelButton";
 
 export default function AdminDashboard() {
+    const navigate = useNavigate();
+
     var [currentPage, changePage] = useState(0);
+
+    function logOut() {
+        localStorage.removeItem("token");
+        navigate("/");
+    }
 
     return (
         <div className="flex bg-zinc-900 overflow-hidden">
@@ -66,27 +75,35 @@ export default function AdminDashboard() {
                         <div onClick={(e) => changePage(4)}>
                             <SidePanelButton
                                 icon={<UserSearch />}
-                                title="Employee Management"
+                                title="User Management"
                                 isSelected={currentPage === 4 ? true : false}
                             />
                         </div>
                         <div onClick={(e) => changePage(5)}>
                             <SidePanelButton
+                                icon={<UserSearch />}
+                                title="Laborer Management"
+                                isSelected={currentPage === 5 ? true : false}
+                            />
+                        </div>
+                        <div onClick={(e) => changePage(6)}>
+                            <SidePanelButton
                                 icon={<Plus />}
                                 title="Add New Data"
-                                isSelected={currentPage === 5 ? true : false}
+                                isSelected={currentPage === 6 ? true : false}
                             />
                         </div>
                     </div>
                 </div>
 
                 <div className="text-center py-16 pl-10 pr-5">
-                    <Link to="/">
-                        <div className="flex justify-center items-center text-white font-semibold py-2 rounded-xl bg-zinc-800 hover:bg-emerald-500 hover:text-black">
-                            <LogOut size={20} />
-                            <span className="pl-3">SIGN OUT</span>
-                        </div>
-                    </Link>
+                    <div
+                        className="flex justify-center items-center text-white font-semibold py-2 rounded-xl bg-zinc-800 hover:bg-emerald-500 hover:text-black"
+                        onClick={(e) => logOut()}
+                    >
+                        <LogOut size={20} />
+                        <span className="pl-3"> SIGN OUT </span>
+                    </div>
                 </div>
             </div>
 
@@ -95,16 +112,18 @@ export default function AdminDashboard() {
                 <div className="h-full w-full rounded-xl bg-white text-black text-xl overflow-scroll ">
                     <div className="h-full overflow-scroll">
                         {currentPage === 0 ? (
-                            <AdminAnalyticsPage />
+                            <AnalyticsPage />
                         ) : currentPage === 1 ? (
-                            <OrderHistory />
+                            <PriorityRequests />
                         ) : currentPage === 2 ? (
-                            <AdminPendingRequests />
+                            <PendingRequests />
                         ) : currentPage === 3 ? (
-                            <AdminMonthlySchedulePage />
+                            <MonthlySchedulePage />
                         ) : currentPage === 4 ? (
-                            <div> ABCDEF GHIJKLM </div>
+                            <UserManagementPage />
                         ) : currentPage === 5 ? (
+                            <LaborerManagementPage />
+                        ) : currentPage === 6 ? (
                             <AddNewDataPage />
                         ) : (
                             <div> ABCDEF GHIJKLM </div>

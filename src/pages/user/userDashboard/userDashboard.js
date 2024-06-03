@@ -5,14 +5,15 @@ import {
     Settings,
     UserSearch,
 } from "lucide-react";
-import SidePanelButton from "../../components/sidePanelButton";
+import SidePanelButton from "../../../components/sidePanelButton";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import TermsAndRules from "../TermsAndRules/termsAndRules";
 import LaborRequestPage from "../laborRequestPage/laborRequestPage";
 import OrderHistory from "../orderHistory/orderHistoryPage";
+import TermsAndRules from "../termsAndRules/termsAndRules";
+// import TermsAndRules from "../termsAndRules/termsAndRules";
 
-export default function Dashboard() {
+export default function UserDashboard() {
     var [currentPage, changePage] = useState(0);
 
     return (

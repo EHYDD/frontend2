@@ -1,7 +1,7 @@
 import { Button, Space, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 
-export default function AdminPendingRequests() {
+export default function PendingRequests() {
     let orderHistory = [
         {
             user: "Dagmawi Babi",

@@ -1,6 +1,6 @@
 export default function SidePanelButton(props) {
     return (
-        <div className="py-2">
+        <div className="py-2 cursor-pointer">
             <div
                 className={
                     props.isSelected === true

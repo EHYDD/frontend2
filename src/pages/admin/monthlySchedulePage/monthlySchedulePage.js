@@ -1,7 +1,7 @@
 import { Calendar, theme, Button, Table } from "antd";
 import { useState } from "react";
 
-export default function AdminMonthlySchedulePage() {
+export default function MonthlySchedulePage() {
     const { token } = theme.useToken();
     const wrapperStyle = {
         width: 450,

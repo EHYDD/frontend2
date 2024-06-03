@@ -2,7 +2,7 @@ import { BarChart, LineChart, PieChart } from "@mui/x-charts";
 import CountUp from "react-countup";
 import { Statistic } from "antd";
 
-export default function AdminAnalyticsPage() {
+export default function AnalyticsPage() {
     const chartSetting = {
         xAxis: [
             {

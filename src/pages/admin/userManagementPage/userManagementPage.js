@@ -1,0 +1,132 @@
+import { useEffect, useState } from "react";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import axios from "axios";
+import { API_BASE } from "../../../config/config";
+import { Button, Space, Table } from "antd";
+import Column from "antd/es/table/Column";
+
+export default function UserManagementPage() {
+    const [isLoading, setLoading] = useState(true);
+    const [userList, setUserList] = useState([]);
+    let savedToken = localStorage.getItem("token");
+
+    async function getLaborers() {
+        let response = await axios.get(`${API_BASE}/ApprovedUsers`, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
+            },
+        });
+        setUserList(response.data);
+        setLoading(false);
+    }
+
+    async function blockUser(record) {
+        let response = await axios.post(
+            `${API_BASE}/admin/block-user`,
+            {
+                email: record.email,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        if (response.status === 200) {
+            getLaborers();
+        }
+    }
+
+    async function unblockUser(record) {
+        let response = await axios.post(
+            `${API_BASE}/admin/unblock-user`,
+            {
+                email: record.email,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        if (response.status === 200) {
+            getLaborers();
+        }
+    }
+
+    useEffect(() => {
+        getLaborers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    return (
+        <div className="p-10">
+            <div className="font-semibold text-lg pb-2"> User Management </div>
+            <div className="pb-10 w-[50vw] text-base">
+                This table is showing you your labor order history. This table
+                allows you to filter and sort the information using various
+                parameters, making it easy to locate specific orders based on
+                criteria such as date, status, man power and more.
+            </div>
+
+            {isLoading === true ? (
+                <div>
+                    <Spin
+                        indicator={
+                            <LoadingOutlined
+                                style={{
+                                    fontSize: 25,
+                                }}
+                                spin
+                            />
+                        }
+                    />
+                </div>
+            ) : (
+                <div>
+                    <Table dataSource={userList}>
+                        <Column title="UserID" dataIndex="userId" key="user" />
+                        <Column title="Email" dataIndex="email" key="date" />
+                        <Column
+                            title="Authority Level"
+                            dataIndex="authorityLevel"
+                            key="date"
+                            onFilter={(value, record) =>
+                                record.authorityLevel.indexOf(value) === 0
+                            }
+                            defaultSortOrder={"descend"}
+                            sorter={(a, b) =>
+                                a.authorityLevel - b.authorityLevel
+                            }
+                        />
+                        <Column title="Status" dataIndex="status" key="date" />
+
+                        <Column
+                            title="Action"
+                            key="action"
+                            render={(_, record) => (
+                                <Space size="middle">
+                                    {record.status === 1 ? (
+                                        <Button
+                                            type="primary"
+                                            onClick={(e) => unblockUser(record)}
+                                        >
+                                            Unblock
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            danger
+                                            onClick={(e) => blockUser(record)}
+                                        >
+                                            Block
+                                        </Button>
+                                    )}
+                                </Space>
+                            )}
+                        />
+                    </Table>
+                </div>
+            )}
+        </div>
+    );
+}
