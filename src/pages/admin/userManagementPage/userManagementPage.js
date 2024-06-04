@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
-import { Spin } from "antd";
+import { Modal, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { API_BASE } from "../../../config/config";
 import { Button, Space, Table } from "antd";
 import Column from "antd/es/table/Column";
 
+let selectedEmail = "";
 export default function UserManagementPage() {
-    const [isLoading, setLoading] = useState(true);
-    const [userList, setUserList] = useState([]);
     let savedToken = localStorage.getItem("token");
 
-    async function getLaborers() {
+    const [isLoading, setLoading] = useState(true);
+    const [userList, setUserList] = useState([]);
+    // const [selectedEmail, setEmail] = useState("");
+
+    async function getApprovedUsers() {
         let response = await axios.get(`${API_BASE}/ApprovedUsers`, {
             headers: {
                 Authorization: `Bearer ${savedToken}`,
@@ -21,11 +24,12 @@ export default function UserManagementPage() {
         setLoading(false);
     }
 
-    async function blockUser(record) {
+    async function blockUser(selectedEmail) {
+        setModal2Open(false);
         let response = await axios.post(
             `${API_BASE}/admin/block-user`,
             {
-                email: record.email,
+                email: selectedEmail,
             },
             {
                 headers: {
@@ -34,8 +38,9 @@ export default function UserManagementPage() {
             }
         );
         if (response.status === 200) {
-            getLaborers();
+            getApprovedUsers();
         }
+        console.log("done blocking");
     }
 
     async function unblockUser(record) {
@@ -51,12 +56,21 @@ export default function UserManagementPage() {
             }
         );
         if (response.status === 200) {
-            getLaborers();
+            getApprovedUsers();
         }
     }
 
+    const [modal2Open, setModal2Open] = useState(false);
+
+    function setModalMessageAndAction(record) {
+        // setEmail(record.email);
+        selectedEmail = record.email;
+        console.log(selectedEmail);
+        setModal2Open(true);
+    }
+
     useEffect(() => {
-        getLaborers();
+        getApprovedUsers();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
@@ -106,7 +120,21 @@ export default function UserManagementPage() {
                             key="action"
                             render={(_, record) => (
                                 <Space size="middle">
-                                    {record.status === 1 ? (
+                                    <Button
+                                        type="primary"
+                                        onClick={(e) => unblockUser(record)}
+                                    >
+                                        Unblock
+                                    </Button>
+                                    <Button
+                                        danger
+                                        onClick={(e) =>
+                                            setModalMessageAndAction(record)
+                                        }
+                                    >
+                                        Block
+                                    </Button>
+                                    {/* {record.status === 1 ? (
                                         <Button
                                             type="primary"
                                             onClick={(e) => unblockUser(record)}
@@ -120,13 +148,38 @@ export default function UserManagementPage() {
                                         >
                                             Block
                                         </Button>
-                                    )}
+                                    )} */}
                                 </Space>
                             )}
                         />
                     </Table>
                 </div>
             )}
+            <Modal
+                title={`Are you sure you want to block "${selectedEmail}"?`}
+                centered
+                open={modal2Open}
+                onCancel={() => setModal2Open(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        <Button
+                            danger
+                            onClick={() => {
+                                blockUser(selectedEmail);
+                            }}
+                        >
+                            Confirm Block
+                        </Button>
+                        <CancelBtn />
+                        {/* <OkBtn /> */}
+                    </>
+                )}
+            >
+                <p>
+                    Blocking this user will disable them from requesting any
+                    service using this platform.
+                </p>
+            </Modal>
         </div>
     );
 }
