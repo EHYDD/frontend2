@@ -26,6 +26,7 @@ export default function UserManagementPage() {
 
     async function blockUser(selectedEmail) {
         setModal2Open(false);
+        console.log("blocking");
         let response = await axios.post(
             `${API_BASE}/admin/block-user`,
             {
@@ -39,8 +40,10 @@ export default function UserManagementPage() {
         );
         if (response.status === 200) {
             getApprovedUsers();
+            console.log(`done blocking ${selectedEmail}`);
+        } else {
+            console.log("can't block");
         }
-        console.log("done blocking");
     }
 
     async function unblockUser(record) {
@@ -57,6 +60,8 @@ export default function UserManagementPage() {
         );
         if (response.status === 200) {
             getApprovedUsers();
+        } else {
+            console.log("can't unblock");
         }
     }
 
@@ -65,7 +70,8 @@ export default function UserManagementPage() {
     function setModalMessageAndAction(record) {
         // setEmail(record.email);
         selectedEmail = record.email;
-        console.log(selectedEmail);
+        blockUser(selectedEmail);
+        // console.log(selectedEmail);
         setModal2Open(true);
     }
 
@@ -108,7 +114,7 @@ export default function UserManagementPage() {
                             onFilter={(value, record) =>
                                 record.authorityLevel.indexOf(value) === 0
                             }
-                            defaultSortOrder={"descend"}
+                            // defaultSortOrder={"descend"}
                             sorter={(a, b) =>
                                 a.authorityLevel - b.authorityLevel
                             }
@@ -120,7 +126,7 @@ export default function UserManagementPage() {
                             key="action"
                             render={(_, record) => (
                                 <Space size="middle">
-                                    <Button
+                                    {/* <Button
                                         type="primary"
                                         onClick={(e) => unblockUser(record)}
                                     >
@@ -133,8 +139,8 @@ export default function UserManagementPage() {
                                         }
                                     >
                                         Block
-                                    </Button>
-                                    {/* {record.status === 1 ? (
+                                    </Button> */}
+                                    {record.status === 0 ? (
                                         <Button
                                             type="primary"
                                             onClick={(e) => unblockUser(record)}
@@ -144,11 +150,13 @@ export default function UserManagementPage() {
                                     ) : (
                                         <Button
                                             danger
-                                            onClick={(e) => blockUser(record)}
+                                            onClick={(e) =>
+                                                setModalMessageAndAction(record)
+                                            }
                                         >
                                             Block
                                         </Button>
-                                    )} */}
+                                    )}
                                 </Space>
                             )}
                         />

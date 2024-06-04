@@ -1,9 +1,15 @@
-import { PlusOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+    PlusOutlined,
+    LoadingOutlined,
+    LockOutlined,
+    UnlockOutlined,
+} from "@ant-design/icons";
 import { API_BASE } from "../../../config/config";
 import { Button, Modal, Space, Spin, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 export default function AddNewDataPage() {
     let savedToken = localStorage.getItem("token");
@@ -12,8 +18,6 @@ export default function AddNewDataPage() {
     const [locationList, setLocationList] = useState([]);
     const [costCenterList, setCostCenterList] = useState([]);
     const [serviceTypeList, setServiceTypeList] = useState([]);
-
-    const [modal2Open, setModal2Open] = useState(false);
 
     async function getLocations() {
         let response = await axios.get(`${API_BASE}/Location`, {
@@ -43,6 +47,7 @@ export default function AddNewDataPage() {
         setLoading(false);
     }
 
+    const [modal2Open, setModal2Open] = useState(false);
     const [itemID, setItemID] = useState(0);
     const [modalType, setModalType] = useState(0);
     const [modalMessage, setModalMessage] = useState("");
@@ -102,6 +107,168 @@ export default function AddNewDataPage() {
         setModal2Open(false);
     }
 
+    const [addModalOpen, setAddModalOpen] = useState(false);
+    const [addModalMessage, setAddModalMessage] = useState("");
+    const [addModalBodyContent, setAddModalBodyContent] = useState("");
+
+    const [selectedPassStatus, setPassStatus] = useState(1);
+    async function openAddLocationModal() {
+        setAddModalType(1);
+        setAddModalMessage("Add New Location");
+        setAddModalBodyContent(
+            <div>
+                <div className="flex flex-col">
+                    <label className="pb-2"> Name </label>
+                    <input
+                        id="locationName"
+                        type="text"
+                        placeholder="location name..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                    <label className="pb-2">
+                        Pass Status {selectedPassStatus}
+                    </label>
+                    <div className="flex gap-2">
+                        <Button
+                            type={
+                                selectedPassStatus === 1
+                                    ? "primary"
+                                    : "outlined"
+                            }
+                            icon={<UnlockOutlined />}
+                            onClick={(e) => setPassStatus(0)}
+                        >
+                            No Pass
+                        </Button>
+                        <Button
+                            type={
+                                selectedPassStatus === 2
+                                    ? "primary"
+                                    : "outlined"
+                            }
+                            icon={<LockOutlined />}
+                            onClick={(e) => setPassStatus(1)}
+                        >
+                            Pass Required
+                        </Button>
+                    </div>
+                    <div className="h-2"></div>
+                </div>
+            </div>
+        );
+        setAddModalOpen(true);
+    }
+
+    async function openAddCostCenterModal() {
+        setAddModalType(2);
+        setAddModalMessage("Add New Cost Center");
+        setAddModalBodyContent(
+            <div>
+                <div className="flex flex-col">
+                    <label className="pb-2"> Cost Center Number </label>
+                    <input
+                        id="costCenterNumber"
+                        type="text"
+                        placeholder="number..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                </div>
+            </div>
+        );
+        setAddModalOpen(true);
+    }
+
+    async function openAddServiceTypeModal() {
+        setAddModalType(3);
+        setAddModalMessage("Add New Service Type");
+        setAddModalBodyContent(
+            <div>
+                <div className="flex flex-col">
+                    <label className="pb-2"> Title </label>
+                    <input
+                        id="title"
+                        type="text"
+                        placeholder="number..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                    <label className="pb-2"> Payment Rate </label>
+                    <input
+                        id="paymentRate"
+                        type="text"
+                        placeholder="payment rate..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                    <label className="pb-2"> Overtime Rate </label>
+                    <input
+                        id="otRate"
+                        type="text"
+                        placeholder="overtime rate..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                </div>
+            </div>
+        );
+        setAddModalOpen(true);
+    }
+
+    const [addModalType, setAddModalType] = useState(0);
+
+    async function addLocation() {
+        let locationName = document.getElementById("locationName").value;
+        let token = localStorage.getItem("token");
+        let decodedUser = jwtDecode(token);
+        let response = await axios.post(`${API_BASE}/location`, {
+            createdBy: decodedUser["email"],
+            updatedBy: decodedUser["email"],
+            locationName: locationName.toString().trim(),
+            passStatus: selectedPassStatus,
+        });
+        if (response.status === 200 || response.status === 201) {
+            getLocations();
+            setAddModalOpen(false);
+        }
+    }
+
+    async function addCostCenter() {
+        let costCenterNumber =
+            document.getElementById("costCenterNumber").value;
+        let token = localStorage.getItem("token");
+        let decodedUser = jwtDecode(token);
+        let response = await axios.post(`${API_BASE}/CostCenter`, {
+            createdBy: decodedUser["email"],
+            updatedBy: decodedUser["email"],
+            costCenterNumber: costCenterNumber.toString().trim(),
+        });
+        if (response.status === 200 || response.status === 201) {
+            getCostCenters();
+            setAddModalOpen(false);
+        }
+    }
+
+    async function addServiceType() {
+        let title = document.getElementById("title").value;
+        let paymentRate = document.getElementById("paymentRate").value;
+        let otRate = document.getElementById("otRate").value;
+        let token = localStorage.getItem("token");
+        let decodedUser = jwtDecode(token);
+        let response = await axios.post(`${API_BASE}/ServiceType`, {
+            createdBy: decodedUser["email"],
+            updatedBy: decodedUser["email"],
+            title: title.toString().trim(),
+            paymentRate: paymentRate.toString().trim(),
+            otRate: otRate.toString().trim(),
+        });
+        if (response.status === 200 || response.status === 201) {
+            getServiceType();
+            setAddModalOpen(false);
+        }
+    }
+
     useEffect(() => {
         getLocations();
         getCostCenters();
@@ -134,7 +301,18 @@ export default function AddNewDataPage() {
             ) : (
                 <div>
                     {/* LOCATION */}
-                    <div className="font-semibold text-lg pb-2"> Locations</div>
+                    <div className="flex justify-between">
+                        <div className="font-semibold text-lg pb-2">
+                            Locations
+                        </div>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={(e) => openAddLocationModal()}
+                        >
+                            New Location
+                        </Button>
+                    </div>
                     <div>
                         <Table dataSource={locationList}>
                             <Column title="ID" dataIndex="id" key="id" />
@@ -196,8 +374,17 @@ export default function AddNewDataPage() {
                     </div>
 
                     {/* COST CENTERS */}
-                    <div className="font-semibold text-lg pb-2">
-                        Cost Centers
+                    <div className="flex justify-between pt-14">
+                        <div className="font-semibold text-lg pb-2">
+                            Cost Centers
+                        </div>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={(e) => openAddCostCenterModal()}
+                        >
+                            New Center
+                        </Button>
                     </div>
                     <div>
                         <Table dataSource={costCenterList}>
@@ -241,8 +428,17 @@ export default function AddNewDataPage() {
                     </div>
 
                     {/* SERVICE TYPES */}
-                    <div className="font-semibold text-lg pb-2">
-                        Service Types
+                    <div className="flex justify-between pt-14">
+                        <div className="font-semibold text-lg pb-2">
+                            Service Types
+                        </div>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={(e) => openAddServiceTypeModal()}
+                        >
+                            New Service
+                        </Button>
                     </div>
                     <div>
                         <Table dataSource={serviceTypeList}>
@@ -298,6 +494,7 @@ export default function AddNewDataPage() {
                 </div>
             )}
 
+            {/* DELETE CONFIRMATION */}
             <Modal
                 title={modalMessage}
                 centered
@@ -325,6 +522,28 @@ export default function AddNewDataPage() {
                 <p> {modalBodyContent} </p>
             </Modal>
 
+            {/* ADD MODAL */}
+            <Modal
+                title={addModalMessage}
+                centered
+                open={addModalOpen}
+                onOk={() =>
+                    addModalType === 1
+                        ? addLocation()
+                        : addModalType === 2
+                        ? addCostCenter()
+                        : addServiceType()
+                }
+                onCancel={() => setAddModalOpen(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        <OkBtn />
+                        <CancelBtn />
+                    </>
+                )}
+            >
+                <p> {addModalBodyContent} </p>
+            </Modal>
             {/* HIDDEN */}
             <div className="w-1/3  gap-2 items-center pb-4 hidden">
                 {/* ADD COST CENTER */}
