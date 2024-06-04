@@ -1,1 +1,1 @@
-export var API_BASE = "http://api.daveget.tech/api";
+export var API_BASE = "https://api.daveget.tech/api";

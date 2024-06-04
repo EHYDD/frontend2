@@ -3,6 +3,7 @@ import {
     LoadingOutlined,
     LockOutlined,
     UnlockOutlined,
+    UndoOutlined,
 } from "@ant-design/icons";
 import { API_BASE } from "../../../config/config";
 import { Button, Modal, Space, Spin, Table, Tag } from "antd";
@@ -190,7 +191,7 @@ export default function AddNewDataPage() {
                     <input
                         id="title"
                         type="text"
-                        placeholder="number..."
+                        placeholder="title..."
                         className="border rounded-lg px-3 py-1 bg-white"
                     />
                     <div className="h-5"></div>
@@ -222,7 +223,7 @@ export default function AddNewDataPage() {
         let locationName = document.getElementById("locationName").value;
         let token = localStorage.getItem("token");
         let decodedUser = jwtDecode(token);
-        let response = await axios.post(`${API_BASE}/location`, {
+        let response = await axios.post(`${API_BASE}/Location`, {
             createdBy: decodedUser["email"],
             updatedBy: decodedUser["email"],
             locationName: locationName.toString().trim(),
@@ -269,6 +270,195 @@ export default function AddNewDataPage() {
         }
     }
 
+    const [editModalType, setEditModalType] = useState(0);
+
+    const [editLocationID, setEditLocationID] = useState(0);
+    const [editCostCenterID, setEditCostCenterID] = useState(0);
+    const [editServiceTypeID, setEditServiceTypeID] = useState(0);
+
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editModalMessage, setEditModalMessage] = useState("");
+    const [editModalBodyContent, setEditModalBodyContent] = useState("");
+
+    function openEditLocationModal(record) {
+        setEditModalType(1);
+        setEditLocationID(record.id);
+        setEditModalMessage("Edit Location");
+        setEditModalBodyContent(
+            <div>
+                <div className="flex flex-col">
+                    <label className="pb-2"> Location Name </label>
+                    <input
+                        id="editLocationName"
+                        type="text"
+                        defaultValue={record.locationName}
+                        placeholder={record.locationName}
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                    <label className="pb-2"> Pass Status </label>
+                    <input
+                        id="editPassStatus"
+                        type="text"
+                        defaultValue={record.passStatus}
+                        placeholder={record.passStatus}
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                </div>
+            </div>
+        );
+        setEditModalOpen(true);
+    }
+    function openEditCostCenterModal(record) {
+        setEditModalType(2);
+        setEditCostCenterID(record.id);
+        setEditModalMessage("Edit Cost Center");
+        setEditModalBodyContent(
+            <div>
+                <div className="flex flex-col">
+                    <label className="pb-2">Cost Center Number</label>
+                    <input
+                        id="editCostCenterNumber"
+                        type="text"
+                        defaultValue={record.costCenterNumber}
+                        placeholder={record.costCenterNumber}
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                </div>
+            </div>
+        );
+        setEditModalOpen(true);
+    }
+    function openEditServiceTypeModal(record) {
+        setEditModalType(3);
+        setEditServiceTypeID(record.id);
+        setEditModalMessage("Edit Service Type");
+        setEditModalBodyContent(
+            <div>
+                <div className="flex flex-col">
+                    <label className="pb-2">Service Name</label>
+                    <input
+                        id="editServiceTypeTitle"
+                        type="text"
+                        defaultValue={record.title}
+                        placeholder={record.title}
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                    <label className="pb-2">Payment Rate</label>
+                    <input
+                        id="editPaymentRate"
+                        type="text"
+                        defaultValue={record.paymentRate}
+                        placeholder={record.paymentRate}
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                    <label className="pb-2">Overtime Rate</label>
+                    <input
+                        id="editOTRate"
+                        type="text"
+                        defaultValue={record.otRate}
+                        placeholder={record.otRate}
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                    <label className="pb-2">Status</label>
+                    <input
+                        id="editServiceStatus"
+                        type="text"
+                        defaultValue={record.status}
+                        placeholder={record.status}
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+                </div>
+            </div>
+        );
+        setEditModalOpen(true);
+    }
+
+    async function editLocation() {
+        let editLocationName =
+            document.getElementById("editLocationName").value;
+        let editPassStatus = document.getElementById("editPassStatus").value;
+        let token = localStorage.getItem("token");
+        let decodedUser = jwtDecode(token);
+        let response = await axios.put(
+            `${API_BASE}/Location/${editLocationID}`,
+            {
+                createdBy: decodedUser["email"],
+                updatedBy: decodedUser["email"],
+                locationName: editLocationName.toString().trim(),
+                passStatus: parseInt(editPassStatus.toString().trim()),
+                id: parseInt(editLocationID.toString().trim()),
+            }
+        );
+        if (response.status === 200 || response.status === 201) {
+            getLocations();
+            setEditModalOpen(false);
+        }
+    }
+
+    async function editCostCenter() {
+        let editCostCenterNumber = document.getElementById(
+            "editCostCenterNumber"
+        ).value;
+        let token = localStorage.getItem("token");
+        let decodedUser = jwtDecode(token);
+        let response = await axios.put(
+            `${API_BASE}/CostCenter/${editCostCenterID}`,
+            {
+                createdBy: decodedUser["email"],
+                updatedBy: decodedUser["email"],
+                costCenterNumber: editCostCenterNumber.toString().trim(),
+                id: parseInt(editCostCenterID.toString().trim()),
+            }
+        );
+        if (response.status === 200 || response.status === 201) {
+            getCostCenters();
+            setEditModalOpen(false);
+        }
+    }
+
+    async function editServiceType() {
+        let editServiceTypeTitle = document.getElementById(
+            "editServiceTypeTitle"
+        ).value;
+        let editPaymentRate = document.getElementById("editPaymentRate").value;
+        let editOTRate = document.getElementById("editOTRate").value;
+        let editServiceStatus =
+            document.getElementById("editServiceStatus").value;
+        let token = localStorage.getItem("token");
+        let decodedUser = jwtDecode(token);
+        let response = await axios.put(
+            `${API_BASE}/ServiceType/${editServiceTypeID}`,
+            {
+                createdBy: decodedUser["email"],
+                updatedBy: decodedUser["email"],
+                title: editServiceTypeTitle.toString().trim(),
+                id: parseInt(editServiceTypeID.toString().trim()),
+                paymentRate: parseInt(editPaymentRate.toString().trim()),
+                otRate: parseInt(editOTRate.toString().trim()),
+                status: parseInt(editServiceStatus.toString().trim()),
+            }
+        );
+        if (response.status === 200 || response.status === 201) {
+            getServiceType();
+            setEditModalOpen(false);
+        }
+    }
+
+    async function refreshAllData() {
+        setLoading(true);
+        await getLocations();
+        await getCostCenters();
+        await getServiceType();
+        setLoading(false);
+    }
+
     useEffect(() => {
         getLocations();
         getCostCenters();
@@ -279,11 +469,20 @@ export default function AddNewDataPage() {
     return (
         <div className="p-10">
             <div className="font-semibold text-lg pb-2"> Add New Data </div>
-            <div className="pb-10 w-[50vw] text-base">
+            <div className="pb-3 w-[50vw] text-base">
                 This table is showing you your labor order history. This table
                 allows you to filter and sort the information using various
                 parameters, making it easy to locate specific orders based on
                 criteria such as date, status, man power and more.
+            </div>
+            <div className="pb-8">
+                <Button
+                    type="primary"
+                    icon={<UndoOutlined />}
+                    onClick={(e) => refreshAllData()}
+                >
+                    Refresh All Data
+                </Button>
             </div>
             {isLoading === true ? (
                 <div>
@@ -301,7 +500,7 @@ export default function AddNewDataPage() {
             ) : (
                 <div>
                     {/* LOCATION */}
-                    <div className="flex justify-between">
+                    <div className="flex justify-between pb-5">
                         <div className="font-semibold text-lg pb-2">
                             Locations
                         </div>
@@ -325,9 +524,7 @@ export default function AddNewDataPage() {
                                 title="Pass Status"
                                 dataIndex="passStatus"
                                 key="passStatus"
-                                sorter={(a, b) =>
-                                    a.authorityLevel - b.authorityLevel
-                                }
+                                sorter={(a, b) => a.passStatus - b.passStatus}
                                 render={(status) =>
                                     status === 0 ? (
                                         <Tag color={"blue"} key={status}>
@@ -355,7 +552,14 @@ export default function AddNewDataPage() {
                                 key="action"
                                 render={(_, record) => (
                                     <Space size="middle">
-                                        <Button type="primary">Edit</Button>
+                                        <Button
+                                            type="primary"
+                                            onClick={(e) =>
+                                                openEditLocationModal(record)
+                                            }
+                                        >
+                                            Edit
+                                        </Button>
                                         <Button
                                             danger
                                             onClick={(e) =>
@@ -374,7 +578,7 @@ export default function AddNewDataPage() {
                     </div>
 
                     {/* COST CENTERS */}
-                    <div className="flex justify-between pt-14">
+                    <div className="flex justify-between pt-14 pb-5">
                         <div className="font-semibold text-lg pb-2">
                             Cost Centers
                         </div>
@@ -409,7 +613,14 @@ export default function AddNewDataPage() {
                                 key="action"
                                 render={(_, record) => (
                                     <Space size="middle">
-                                        <Button type="primary">Edit</Button>
+                                        <Button
+                                            type="primary"
+                                            onClick={(e) =>
+                                                openEditCostCenterModal(record)
+                                            }
+                                        >
+                                            Edit
+                                        </Button>
                                         <Button
                                             danger
                                             onClick={(e) =>
@@ -428,7 +639,7 @@ export default function AddNewDataPage() {
                     </div>
 
                     {/* SERVICE TYPES */}
-                    <div className="flex justify-between pt-14">
+                    <div className="flex justify-between pt-14 pb-5">
                         <div className="font-semibold text-lg pb-2">
                             Service Types
                         </div>
@@ -457,24 +668,27 @@ export default function AddNewDataPage() {
                                 title="Payment Rate"
                                 dataIndex="paymentRate"
                                 key="paymentRate"
-                                sorter={(a, b) =>
-                                    a.authorityLevel - b.authorityLevel
-                                }
+                                sorter={(a, b) => a.paymentRate - b.paymentRate}
                             />
                             <Column
                                 title="Overtime Rate"
                                 dataIndex="otRate"
                                 key="otRate"
-                                sorter={(a, b) =>
-                                    a.authorityLevel - b.authorityLevel
-                                }
+                                sorter={(a, b) => a.otRate - b.otRate}
                             />
                             <Column
                                 title="Action"
                                 key="action"
                                 render={(_, record) => (
                                     <Space size="middle">
-                                        <Button type="primary">Edit</Button>
+                                        <Button
+                                            type="primary"
+                                            onClick={(e) =>
+                                                openEditServiceTypeModal(record)
+                                            }
+                                        >
+                                            Edit
+                                        </Button>
                                         <Button
                                             danger
                                             onClick={(e) =>
@@ -544,6 +758,47 @@ export default function AddNewDataPage() {
             >
                 <p> {addModalBodyContent} </p>
             </Modal>
+
+            {/* EDIT MODAL */}
+            <Modal
+                title={editModalMessage}
+                centered
+                open={editModalOpen}
+                // onOk={
+                //     () => () => {}
+                // addModalType === 1
+                //     ? addLocation()
+                //     : addModalType === 2
+                //     ? addCostCenter()
+                //     : addServiceType()
+                // }
+                onCancel={() => setEditModalOpen(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        {/* <OkBtn /> */}
+                        <Button
+                            type="primary"
+                            onClick={() => {
+                                // editLocation();
+                                // editCostCenter();
+                                // editServiceType();
+
+                                editModalType === 1
+                                    ? editLocation()
+                                    : editModalType === 2
+                                    ? editCostCenter()
+                                    : editServiceType();
+                            }}
+                        >
+                            Confirm Edit
+                        </Button>
+                        <CancelBtn />
+                    </>
+                )}
+            >
+                <div> {editModalBodyContent} </div>
+            </Modal>
+
             {/* HIDDEN */}
             <div className="w-1/3  gap-2 items-center pb-4 hidden">
                 {/* ADD COST CENTER */}
