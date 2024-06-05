@@ -5,48 +5,62 @@ import { Steps, Button } from "antd";
 import { Col, InputNumber, Row, Slider } from "antd";
 
 import { DatePicker } from "antd";
-const { RangePicker } = DatePicker;
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { API_BASE } from "../../../config/config";
+import moment from "moment";
 
+let selectedDate = "";
 export default function LaborRequestPage() {
     const [current, setCurrent] = useState(0);
     const [current2, setCurrent2] = useState(0);
     const [loadings, setLoadings] = useState([]);
     const [available, setAvailability] = useState(false);
 
-    const enterLoading = (index) => {
-        setLoadings((prevLoadings) => {
-            const newLoadings = [...prevLoadings];
-            newLoadings[index] = true;
-            return newLoadings;
-        });
-        setTimeout(() => {
-            setLoadings((prevLoadings) => {
-                const newLoadings = [...prevLoadings];
-                newLoadings[index] = false;
-                setAvailability(!available);
-                return newLoadings;
-            });
-        }, 2000);
-    };
-
     const onChangeSteps = (value) => {
-        console.log("onChange:", value);
         setCurrent(value);
     };
     const onChangeSteps2 = (value) => {
-        console.log("onChange:", value);
         setCurrent2(value);
     };
 
-    const [inputValue, setInputValue] = useState(1);
+    const [laborersAmount, setLaborersAmount] = useState(1);
     const onChange = (newValue) => {
-        setInputValue(newValue);
+        setLaborersAmount(newValue);
     };
 
-    const [selectedDate, setSelectedDate] = useState(1);
-    const onChangeDate = (newValue) => {
-        setSelectedDate(newValue);
+    const [duration, setDuration] = useState(1);
+    const onChangeDuration = (newValue) => {
+        setDuration(newValue);
     };
+
+    const onChangeDate = (newValue) => {
+        let chosenDate = document.getElementById("dateChosen").value;
+        // TODO REMOVE
+        chosenDate = moment(chosenDate).add(1, "months").format("YYYY-MM-DD");
+        selectedDate = chosenDate;
+    };
+
+    const padLeft = (str, length, padChar) => {
+        return str.toString().padStart(length, padChar);
+    };
+    async function checkAvailability() {
+        let secondDate = moment(selectedDate)
+            .add(1, "days")
+            .format("YYYY-MM-DD");
+
+        let response = await axios.post(`${API_BASE}/DateChecker`, {
+            firstDate: selectedDate,
+            secondDate: secondDate,
+            totalHours: duration,
+        });
+        if (response.status === 200 || response.status === 201) {
+            console.log(response.data);
+            setAvailability(true);
+            // getLocations();
+            // setAddModalOpen(false);
+        }
+    }
 
     return (
         <div className="flex gap-4 h-screen w-4/5">
@@ -85,6 +99,24 @@ export default function LaborRequestPage() {
                             ),
                             description: (
                                 <div className="py-5">
+                                    <div className="pt-2 pb-3 pl-2 text-base font-semibold">
+                                        Select Date
+                                    </div>
+                                    <DatePicker
+                                        id="dateChosen"
+                                        onChange={onChangeDate}
+                                    />
+                                </div>
+                            ),
+                        },
+                        {
+                            title: (
+                                <div className="font-semibold text-base">
+                                    Step 2
+                                </div>
+                            ),
+                            description: (
+                                <div className="py-5">
                                     <div className="pt-2 pb-2 pl-2 text-base font-semibold">
                                         Select Amount Of Man Power
                                     </div>
@@ -98,9 +130,9 @@ export default function LaborRequestPage() {
                                                     marginLeft: "10px",
                                                 }}
                                                 value={
-                                                    typeof inputValue ===
+                                                    typeof laborersAmount ===
                                                     "number"
-                                                        ? inputValue
+                                                        ? laborersAmount
                                                         : 0
                                                 }
                                             />
@@ -112,7 +144,7 @@ export default function LaborRequestPage() {
                                                 style={{
                                                     margin: "0 5px",
                                                 }}
-                                                value={inputValue}
+                                                value={laborersAmount}
                                                 onChange={onChange}
                                             />
                                         </Col>
@@ -123,22 +155,49 @@ export default function LaborRequestPage() {
                         {
                             title: (
                                 <div className="font-semibold text-base">
-                                    Step 2
+                                    Step 3
                                 </div>
                             ),
                             description: (
                                 <div className="py-5">
-                                    <div className="pt-2 pb-3 pl-2 text-base font-semibold">
-                                        Select Date
+                                    <div className="pt-2 pb-2 pl-2 text-base font-semibold">
+                                        Select Duration of Time
                                     </div>
-                                    <DatePicker onChange={onChangeDate} />
+                                    <Row>
+                                        <Col span={16}>
+                                            <Slider
+                                                min={1}
+                                                max={16}
+                                                onChange={onChangeDuration}
+                                                style={{
+                                                    marginLeft: "10px",
+                                                }}
+                                                value={
+                                                    typeof duration === "number"
+                                                        ? duration
+                                                        : 0
+                                                }
+                                            />
+                                        </Col>
+                                        <Col span={4}>
+                                            <InputNumber
+                                                min={1}
+                                                max={100}
+                                                style={{
+                                                    margin: "0 5px",
+                                                }}
+                                                value={duration}
+                                                onChange={onChangeDuration}
+                                            />
+                                        </Col>
+                                    </Row>
                                 </div>
                             ),
                         },
                         {
                             title: (
                                 <div className="font-semibold text-base">
-                                    Step 3
+                                    Step 4
                                 </div>
                             ),
                             description: (
@@ -152,7 +211,7 @@ export default function LaborRequestPage() {
                                         <Button
                                             type="primary"
                                             loading={loadings[0]}
-                                            onClick={() => enterLoading(0)}
+                                            onClick={() => checkAvailability()}
                                         >
                                             Check Availability
                                         </Button>
@@ -226,7 +285,7 @@ export default function LaborRequestPage() {
                                         <Button
                                             type="primary"
                                             loading={loadings[0]}
-                                            onClick={() => enterLoading(0)}
+                                            onClick={() => () => {}}
                                         >
                                             Request Labor
                                         </Button>
