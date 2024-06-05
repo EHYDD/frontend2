@@ -12,6 +12,8 @@ export default function UserManagementPage() {
 
     const [isLoading, setLoading] = useState(true);
     const [userList, setUserList] = useState([]);
+    const [isUnblockingEmail, setIsUnblockingEmail] = useState("0");
+    const [isBlockingEmail, setIsBlockingEmail] = useState("0");
     // const [selectedEmail, setEmail] = useState("");
 
     async function getApprovedUsers() {
@@ -26,7 +28,6 @@ export default function UserManagementPage() {
 
     async function blockUser(selectedEmail) {
         setModal2Open(false);
-        console.log("blocking");
         let response = await axios.post(
             `${API_BASE}/admin/block-user`,
             {
@@ -40,13 +41,11 @@ export default function UserManagementPage() {
         );
         if (response.status === 200) {
             getApprovedUsers();
-            console.log(`done blocking ${selectedEmail}`);
-        } else {
-            console.log("can't block");
         }
     }
 
     async function unblockUser(record) {
+        setIsUnblockingEmail(record.email);
         let response = await axios.post(
             `${API_BASE}/admin/unblock-user`,
             {
@@ -68,10 +67,9 @@ export default function UserManagementPage() {
     const [modal2Open, setModal2Open] = useState(false);
 
     function setModalMessageAndAction(record) {
-        // setEmail(record.email);
+        setIsBlockingEmail(record.email);
         selectedEmail = record.email;
         blockUser(selectedEmail);
-        // console.log(selectedEmail);
         setModal2Open(true);
     }
 
@@ -141,12 +139,42 @@ export default function UserManagementPage() {
                                         Block
                                     </Button> */}
                                     {record.status === 0 ? (
-                                        <Button
-                                            type="primary"
-                                            onClick={(e) => unblockUser(record)}
-                                        >
-                                            Unblock
-                                        </Button>
+                                        isUnblockingEmail !== "0" ? (
+                                            <div>
+                                                <Spin
+                                                    indicator={
+                                                        <LoadingOutlined
+                                                            style={{
+                                                                fontSize: 25,
+                                                            }}
+                                                            spin
+                                                        />
+                                                    }
+                                                />
+                                            </div>
+                                        ) : (
+                                            <Button
+                                                type="primary"
+                                                onClick={(e) =>
+                                                    unblockUser(record)
+                                                }
+                                            >
+                                                Unblock
+                                            </Button>
+                                        )
+                                    ) : isBlockingEmail !== record.email ? (
+                                        <div>
+                                            <Spin
+                                                indicator={
+                                                    <LoadingOutlined
+                                                        style={{
+                                                            fontSize: 25,
+                                                        }}
+                                                        spin
+                                                    />
+                                                }
+                                            />
+                                        </div>
                                     ) : (
                                         <Button
                                             danger

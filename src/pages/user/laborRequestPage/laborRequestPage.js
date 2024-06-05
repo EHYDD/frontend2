@@ -43,6 +43,11 @@ export default function LaborRequestPage() {
         setInputValue(newValue);
     };
 
+    const [selectedDate, setSelectedDate] = useState(1);
+    const onChangeDate = (newValue) => {
+        setSelectedDate(newValue);
+    };
+
     return (
         <div className="flex gap-4 h-screen w-4/5">
             <div className="p-8">
@@ -81,13 +86,13 @@ export default function LaborRequestPage() {
                             description: (
                                 <div className="py-5">
                                     <div className="pt-2 pb-2 pl-2 text-base font-semibold">
-                                        Select Man Power
+                                        Select Amount Of Man Power
                                     </div>
                                     <Row>
-                                        <Col span={20}>
+                                        <Col span={10}>
                                             <Slider
                                                 min={1}
-                                                max={100}
+                                                max={4}
                                                 onChange={onChange}
                                                 style={{
                                                     marginLeft: "10px",
@@ -123,10 +128,10 @@ export default function LaborRequestPage() {
                             ),
                             description: (
                                 <div className="py-5">
-                                    <div className="pt-2 pb-2 pl-2 text-base font-semibold">
-                                        Select Date Range
+                                    <div className="pt-2 pb-3 pl-2 text-base font-semibold">
+                                        Select Date
                                     </div>
-                                    <RangePicker showTime />
+                                    <DatePicker onChange={onChangeDate} />
                                 </div>
                             ),
                         },
