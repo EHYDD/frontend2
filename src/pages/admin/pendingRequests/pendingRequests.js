@@ -1,13 +1,15 @@
-import { Button, Modal, Popover, Space, Table, Tag } from "antd";
+import { Button, Modal, Popover, Space, Spin, Table } from "antd";
 import Column from "antd/es/table/Column";
 import axios from "axios";
 // import { jwtDecode } from "jwt-decode";
 import { API_BASE } from "../../../config/config";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { LoadingOutlined } from "@ant-design/icons";
 
 export default function PendingRequests() {
     let savedToken = localStorage.getItem("token");
+    const [isLoading, setLoading] = useState(true);
 
     const [pendingRequests, setPendingRequests] = useState([]);
     const [modalMessage, setModalMessage] = useState("");
@@ -21,6 +23,7 @@ export default function PendingRequests() {
             },
         });
         setPendingRequests(response.data);
+        setLoading(false);
     }
 
     const [currentRequestID, setRequestID] = useState(0);
@@ -83,124 +86,143 @@ export default function PendingRequests() {
                 These are requests waiting for your approval or rejects. Kindly
                 review each request and respond appropriately.
             </p>
-            <div>
-                <Table
-                    dataSource={pendingRequests}
-                    // expandable={{
-                    //     expandedRowRender: (record) => (
-                    //         <div className="flex justify-evenly">
-                    //             <div className="text-center">
-                    //                 <p className="font-semibold pb-2">
-                    //                     Job Status
-                    //                 </p>
-                    //                 <p>{record.jobStatus}</p>
-                    //             </div>
-                    //             <div className="text-center">
-                    //                 <p className="font-semibold pb-2">
-                    //                     Overtime Duration
-                    //                 </p>
-                    //                 <p>{record.oTduration}</p>
-                    //             </div>
-                    //             <div className="text-center pb-2">
-                    //                 <p className="font-semibold">Created At</p>
-                    //                 <p>
-                    //                     {moment(record.createdAt).format(
-                    //                         "MMMM Do YYYY, h:mm:ss a"
-                    //                     )}
-                    //                 </p>
-                    //             </div>
-                    //         </div>
-                    //     ),
-                    //     expandRowByClick: true,
-                    //     rowExpandable: (record) =>
-                    //         record.id !== "Not Expandable",
-                    // }}
-                >
-                    <Column title="ID" dataIndex="id" key="id" fixed="left" />
-                    <Column
-                        title="createdBy"
-                        dataIndex="createdBy"
-                        key="createdBy"
+            {isLoading === true ? (
+                <div>
+                    <Spin
+                        indicator={
+                            <LoadingOutlined
+                                style={{
+                                    fontSize: 25,
+                                }}
+                                spin
+                            />
+                        }
                     />
-                    <Column
-                        title="Cost Center ID"
-                        dataIndex="costCenterId"
-                        key="costCenterId"
-                        fixed="left"
-                    />
-                    <Column
-                        title="Location"
-                        dataIndex="locationId"
-                        key="locationId"
-                        fixed="left"
-                    />
-                    <Column
-                        title="Service Type Id"
-                        dataIndex="serviceTypeId"
-                        key="serviceTypeId"
-                        fixed="left"
-                    />
+                </div>
+            ) : (
+                <div>
+                    <Table
+                        dataSource={pendingRequests}
+                        // expandable={{
+                        //     expandedRowRender: (record) => (
+                        //         <div className="flex justify-evenly">
+                        //             <div className="text-center">
+                        //                 <p className="font-semibold pb-2">
+                        //                     Job Status
+                        //                 </p>
+                        //                 <p>{record.jobStatus}</p>
+                        //             </div>
+                        //             <div className="text-center">
+                        //                 <p className="font-semibold pb-2">
+                        //                     Overtime Duration
+                        //                 </p>
+                        //                 <p>{record.oTduration}</p>
+                        //             </div>
+                        //             <div className="text-center pb-2">
+                        //                 <p className="font-semibold">Created At</p>
+                        //                 <p>
+                        //                     {moment(record.createdAt).format(
+                        //                         "MMMM Do YYYY, h:mm:ss a"
+                        //                     )}
+                        //                 </p>
+                        //             </div>
+                        //         </div>
+                        //     ),
+                        //     expandRowByClick: true,
+                        //     rowExpandable: (record) =>
+                        //         record.id !== "Not Expandable",
+                        // }}
+                    >
+                        <Column
+                            title="ID"
+                            dataIndex="id"
+                            key="id"
+                            fixed="left"
+                        />
+                        <Column
+                            title="createdBy"
+                            dataIndex="createdBy"
+                            key="createdBy"
+                        />
+                        <Column
+                            title="Cost Center ID"
+                            dataIndex="costCenterId"
+                            key="costCenterId"
+                            fixed="left"
+                        />
+                        <Column
+                            title="Location"
+                            dataIndex="locationId"
+                            key="locationId"
+                            fixed="left"
+                        />
+                        <Column
+                            title="Service Type Id"
+                            dataIndex="serviceTypeId"
+                            key="serviceTypeId"
+                            fixed="left"
+                        />
 
-                    <Column
-                        title="Requested Duration"
-                        dataIndex="requestedduration"
-                        key="requestedduration"
-                        fixed="left"
-                    />
-                    <Column
-                        title="First Date"
-                        dataIndex="firstDate"
-                        key="firstDate"
-                        fixed="left"
-                    />
-                    <Column
-                        title="Second Date"
-                        dataIndex="secondDate"
-                        key="secondDate"
-                    />
-                    <Column
-                        title="More Info"
-                        key="action"
-                        fixed="right"
-                        render={(_, record) => (
-                            <Popover
-                                content={
-                                    <div className="flex flex-col justify-evenly">
-                                        <div className="text-center flex">
-                                            <p className="font-semibold pb-2 pr-2">
-                                                Job Status —
-                                            </p>
-                                            <p>{record.jobStatus}</p>
+                        <Column
+                            title="Requested Duration"
+                            dataIndex="requestedduration"
+                            key="requestedduration"
+                            fixed="left"
+                        />
+                        <Column
+                            title="First Date"
+                            dataIndex="firstDate"
+                            key="firstDate"
+                            fixed="left"
+                        />
+                        <Column
+                            title="Second Date"
+                            dataIndex="secondDate"
+                            key="secondDate"
+                        />
+                        <Column
+                            title="More Info"
+                            key="action"
+                            fixed="right"
+                            render={(_, record) => (
+                                <Popover
+                                    content={
+                                        <div className="flex flex-col justify-evenly">
+                                            <div className="text-center flex">
+                                                <p className="font-semibold pb-2 pr-2">
+                                                    Job Status —
+                                                </p>
+                                                <p>{record.jobStatus}</p>
+                                            </div>
+                                            <div className="text-center flex">
+                                                <p className="font-semibold pb-2 pr-2">
+                                                    Overtime Duration —
+                                                </p>
+                                                <p>{record.oTduration}</p>
+                                            </div>
+                                            <div className="text-center pb-2 flex">
+                                                <p className="font-semibold pb-2 pr-2">
+                                                    Created At —
+                                                </p>
+                                                <p>
+                                                    {moment(
+                                                        record.createdAt
+                                                    ).format(
+                                                        "MMMM Do YYYY, h:mm:ss a"
+                                                    )}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="text-center flex">
-                                            <p className="font-semibold pb-2 pr-2">
-                                                Overtime Duration —
-                                            </p>
-                                            <p>{record.oTduration}</p>
-                                        </div>
-                                        <div className="text-center pb-2 flex">
-                                            <p className="font-semibold pb-2 pr-2">
-                                                Created At —
-                                            </p>
-                                            <p>
-                                                {moment(
-                                                    record.createdAt
-                                                ).format(
-                                                    "MMMM Do YYYY, h:mm:ss a"
-                                                )}
-                                            </p>
-                                        </div>
-                                    </div>
-                                }
-                                title=""
-                                trigger="hover"
-                            >
-                                <Button> More Info </Button>
-                            </Popover>
-                        )}
-                    />
+                                    }
+                                    title=""
+                                    trigger="hover"
+                                >
+                                    <Button> More Info </Button>
+                                </Popover>
+                            )}
+                        />
 
-                    {/* <Column
+                        {/* <Column
                         title="jobStatus"
                         dataIndex="jobStatus" 
                         key="jobStatus"
@@ -219,7 +241,7 @@ export default function PendingRequests() {
                     
                     */}
 
-                    {/* <Column
+                        {/* <Column
                     title="Status"
                     dataIndex="status"
                     key="status"
@@ -229,29 +251,30 @@ export default function PendingRequests() {
                         </Tag>
                     )}
                 /> */}
-                    <Column
-                        title="Action"
-                        key="action"
-                        fixed="right"
-                        render={(_, record) => (
-                            <Space size="middle">
-                                <Button
-                                    type="primary"
-                                    onClick={() => approveRequest(record)}
-                                >
-                                    Approve
-                                </Button>
-                                <Button
-                                    danger
-                                    onClick={() => setModalMessages(record)}
-                                >
-                                    Reject
-                                </Button>
-                            </Space>
-                        )}
-                    />
-                </Table>
-            </div>
+                        <Column
+                            title="Action"
+                            key="action"
+                            fixed="right"
+                            render={(_, record) => (
+                                <Space size="middle">
+                                    <Button
+                                        type="primary"
+                                        onClick={() => approveRequest(record)}
+                                    >
+                                        Approve
+                                    </Button>
+                                    <Button
+                                        danger
+                                        onClick={() => setModalMessages(record)}
+                                    >
+                                        Reject
+                                    </Button>
+                                </Space>
+                            )}
+                        />
+                    </Table>
+                </div>
+            )}
 
             {/* DELETE CONFIRMATION */}
             <Modal

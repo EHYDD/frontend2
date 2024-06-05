@@ -13,7 +13,7 @@ export default function UserManagementPage() {
     const [isLoading, setLoading] = useState(true);
     const [userList, setUserList] = useState([]);
     const [isUnblockingEmail, setIsUnblockingEmail] = useState("0");
-    const [isBlockingEmail, setIsBlockingEmail] = useState("0");
+    const [isBlockingEmail, setIsBlockingEmail] = useState(false);
     // const [selectedEmail, setEmail] = useState("");
 
     async function getApprovedUsers() {
@@ -27,7 +27,7 @@ export default function UserManagementPage() {
     }
 
     async function blockUser(selectedEmail) {
-        setModal2Open(false);
+        setIsBlockingEmail(true);
         let response = await axios.post(
             `${API_BASE}/admin/block-user`,
             {
@@ -41,6 +41,8 @@ export default function UserManagementPage() {
         );
         if (response.status === 200) {
             getApprovedUsers();
+            setIsBlockingEmail(false);
+            setModal2Open(false);
         }
     }
 
@@ -59,17 +61,15 @@ export default function UserManagementPage() {
         );
         if (response.status === 200) {
             getApprovedUsers();
-        } else {
-            console.log("can't unblock");
+            setIsUnblockingEmail("0");
         }
     }
 
     const [modal2Open, setModal2Open] = useState(false);
 
     function setModalMessageAndAction(record) {
-        setIsBlockingEmail(record.email);
         selectedEmail = record.email;
-        blockUser(selectedEmail);
+        // blockUser(selectedEmail);
         setModal2Open(true);
     }
 
@@ -139,7 +139,7 @@ export default function UserManagementPage() {
                                         Block
                                     </Button> */}
                                     {record.status === 0 ? (
-                                        isUnblockingEmail !== "0" ? (
+                                        isUnblockingEmail === record.email ? (
                                             <div>
                                                 <Spin
                                                     indicator={
@@ -162,19 +162,6 @@ export default function UserManagementPage() {
                                                 Unblock
                                             </Button>
                                         )
-                                    ) : isBlockingEmail !== record.email ? (
-                                        <div>
-                                            <Spin
-                                                indicator={
-                                                    <LoadingOutlined
-                                                        style={{
-                                                            fontSize: 25,
-                                                        }}
-                                                        spin
-                                                    />
-                                                }
-                                            />
-                                        </div>
                                     ) : (
                                         <Button
                                             danger
@@ -197,18 +184,33 @@ export default function UserManagementPage() {
                 open={modal2Open}
                 onCancel={() => setModal2Open(false)}
                 footer={(_, { OkBtn, CancelBtn }) => (
-                    <>
-                        <Button
-                            danger
-                            onClick={() => {
-                                blockUser(selectedEmail);
-                            }}
-                        >
-                            Confirm Block
-                        </Button>
+                    <div className="flex gap-3 justify-end">
+                        {isBlockingEmail === true ? (
+                            <div>
+                                <Spin
+                                    indicator={
+                                        <LoadingOutlined
+                                            style={{
+                                                fontSize: 25,
+                                            }}
+                                            spin
+                                        />
+                                    }
+                                />
+                            </div>
+                        ) : (
+                            <Button
+                                danger
+                                onClick={() => {
+                                    blockUser(selectedEmail);
+                                }}
+                            >
+                                Confirm Block
+                            </Button>
+                        )}
                         <CancelBtn />
                         {/* <OkBtn /> */}
-                    </>
+                    </div>
                 )}
             >
                 <p>
