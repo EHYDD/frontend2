@@ -1,10 +1,4 @@
-import {
-    History,
-    LogOut,
-    LucideReceiptText,
-    Settings,
-    UserSearch,
-} from "lucide-react";
+import { History, LogOut, LucideReceiptText, UserSearch } from "lucide-react";
 import SidePanelButton from "../../../components/sidePanelButton";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -52,13 +46,6 @@ export default function UserDashboard() {
                                 isSelected={currentPage === 2 ? true : false}
                             />
                         </div>
-                        <div onClick={(e) => changePage(3)}>
-                            <SidePanelButton
-                                icon={<Settings />}
-                                title="Settings"
-                                isSelected={currentPage === 3 ? true : false}
-                            />
-                        </div>
                     </div>
                 </div>
 
@@ -80,10 +67,8 @@ export default function UserDashboard() {
                             <LaborRequestPage />
                         ) : currentPage === 1 ? (
                             <OrderHistory />
-                        ) : currentPage === 2 ? (
-                            <TermsAndRules />
                         ) : (
-                            <div> PROFILE SETTINGS </div>
+                            <TermsAndRules />
                         )}
                     </div>
                 </div>

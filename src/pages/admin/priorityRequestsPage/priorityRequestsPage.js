@@ -1,196 +1,31 @@
 /* eslint-disable no-unused-vars */
-import { List, Collapse, Table } from "antd";
+import axios from "axios";
+import { API_BASE } from "../../../config/config";
+import { List, Collapse, Table, Space, Button } from "antd";
+import { useEffect, useState } from "react";
+import Column from "antd/es/table/Column";
 
 export default function PriorityRequests() {
-    let orderHistory = [
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 5,
-            location: "Location 1",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "active",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 8,
-            location: "Location 2",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "pending",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 4,
-            location: "Location 3",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "completed",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 3,
-            location: "Location 1",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "active",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 2,
-            location: "Location 2",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "pending",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 3,
-            location: "Location 3",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "completed",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 5,
-            location: "Location 1",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "active",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 8,
-            location: "Location 2",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "pending",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 4,
-            location: "Location 3",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "completed",
-        },
-    ];
+    let savedToken = localStorage.getItem("token");
 
-    const columns = [
-        {
-            title: "Date",
-            dataIndex: "date",
-            showSorterTooltip: {
-                target: "full-header",
-            },
+    const [priorityRequests, setPriorityRequests] = useState([]);
+    async function getPriorityRequests() {
+        let response = await axios.get(
+            `${API_BASE}/Requests/AllPriorityRequests`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        setPriorityRequests(response.data);
+    }
 
-            // specify the condition of filtering result
-            // here is that finding the name started with `value`
-            onFilter: (value, record) => record.name.indexOf(value) === 0,
-            sorter: (a, b) => a.name.length - b.name.length,
-            sortDirections: ["descend"],
-        },
-        {
-            title: "Man Power",
-            dataIndex: "manPower",
-            defaultSortOrder: "descend",
-            sorter: (a, b) => a.manPower - b.manPower,
-        },
-        {
-            title: "Location",
-            dataIndex: "location",
-            filters: [
-                {
-                    text: "Location 1",
-                    value: "Location 1",
-                },
-                {
-                    text: "Location 2",
-                    value: "Location 2",
-                },
-                {
-                    text: "Location 3",
-                    value: "Location 3",
-                },
-            ],
-            onFilter: (value, record) => record.location.indexOf(value) === 0,
-        },
-        {
-            title: "Service Type",
-            dataIndex: "serviceType",
-            filters: [
-                {
-                    text: "Labor",
-                    value: "labor",
-                },
-                {
-                    text: "Cleaning",
-                    value: "cleaning",
-                },
-                {
-                    text: "More Service",
-                    value: "More Service",
-                },
-                {
-                    text: "More Slavery",
-                    value: "More Slavery",
-                },
-            ],
-            onFilter: (value, record) =>
-                record.serviceType.indexOf(value) === 0,
-        },
-        {
-            title: "Status",
-            dataIndex: "status",
-            filters: [
-                {
-                    text: "Active",
-                    value: "active",
-                },
-                {
-                    text: "Pending",
-                    value: "pending",
-                },
-                {
-                    text: "Completed",
-                    value: "completed",
-                },
-            ],
-            onFilter: (value, record) => record.status.indexOf(value) === 0,
-        },
-    ];
+    useEffect(() => {
+        getPriorityRequests();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    const onChange = (pagination, filters, sorter, extra) => {
-        console.log("params", pagination, filters, sorter, extra);
-    };
     return (
         <div className="p-10">
             <div className="font-semibold text-lg pb-2">Order History</div>
@@ -200,14 +35,41 @@ export default function PriorityRequests() {
                 parameters, making it easy to locate specific orders based on
                 criteria such as date, status, man power and more.
             </div>
-            <Table
-                columns={columns}
-                dataSource={orderHistory}
-                onChange={onChange}
-                showSorterTooltip={{
-                    target: "sorter-icon",
-                }}
-            />
+            <Table dataSource={priorityRequests}>
+                <Column title="ID" dataIndex="id" key="id" />
+                <Column
+                    title="Location Name"
+                    dataIndex="locationName"
+                    key="locationName"
+                />
+                {/* <Column
+                                title="Pass Status"
+                                dataIndex="passStatus"
+                                key="passStatus"
+                                sorter={(a, b) => a.passStatus - b.passStatus}
+                                render={(status) =>
+                                    status === 0 ? (
+                                        <Tag color={"blue"} key={status}>
+                                            {status}
+                                        </Tag>
+                                    ) : (
+                                        <Tag color={"purple"} key={status}>
+                                            {status}
+                                        </Tag>
+                                    )
+                                }
+                            /> */}
+                <Column
+                    title="Created By"
+                    dataIndex="createdBy"
+                    key="createdBy"
+                />
+                <Column
+                    title="Updated By"
+                    dataIndex="updatedBy"
+                    key="updatedBy"
+                />
+            </Table>
 
             {/* <List
                 size="large"

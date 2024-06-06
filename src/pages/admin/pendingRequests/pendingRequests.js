@@ -140,7 +140,7 @@ export default function PendingRequests() {
                             fixed="left"
                         />
                         <Column
-                            title="createdBy"
+                            title="Created By"
                             dataIndex="createdBy"
                             key="createdBy"
                         />
@@ -157,7 +157,7 @@ export default function PendingRequests() {
                             fixed="left"
                         />
                         <Column
-                            title="Service Type Id"
+                            title="Service Type ID"
                             dataIndex="serviceTypeId"
                             key="serviceTypeId"
                             fixed="left"

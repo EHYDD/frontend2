@@ -1,196 +1,43 @@
 /* eslint-disable no-unused-vars */
-import { List, Collapse, Table } from "antd";
+import { List, Collapse, Table, Button, Popover } from "antd";
+import axios from "axios";
+import { API_BASE } from "../../../config/config";
+import { useEffect, useState } from "react";
+import Column from "antd/es/table/Column";
+import moment from "moment";
 
 export default function OrderHistory() {
-    let orderHistory = [
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 5,
-            location: "Location 1",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "active",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 8,
-            location: "Location 2",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "pending",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 4,
-            location: "Location 3",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "completed",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 3,
-            location: "Location 1",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "active",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 2,
-            location: "Location 2",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "pending",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 3,
-            location: "Location 3",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "completed",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 5,
-            location: "Location 1",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "active",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 8,
-            location: "Location 2",
-            serviceType: "cleaning",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "pending",
-        },
-        {
-            date: Date().toString().substring(0, 15),
-            manPower: 4,
-            location: "Location 3",
-            serviceType: "labor",
-            dateRange: [
-                Date().toString().substring(0, 15),
-                Date().toString().substring(0, 15),
-            ],
-            status: "completed",
-        },
-    ];
+    let savedToken = localStorage.getItem("token");
 
-    const columns = [
-        {
-            title: "Date",
-            dataIndex: "date",
-            showSorterTooltip: {
-                target: "full-header",
+    const [orderHistory, setOrderHistory] = useState([]);
+    async function getOrderHistory() {
+        let response = await axios.get(
+            `${API_BASE}/Requests/PersonalRequests`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        setOrderHistory(response.data);
+    }
+
+    const [requestInfoList, setRequestInfoList] = useState(0);
+    async function getRequestInfoList() {
+        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
             },
+        });
+        setRequestInfoList(response.data);
+    }
 
-            // specify the condition of filtering result
-            // here is that finding the name started with `value`
-            onFilter: (value, record) => record.name.indexOf(value) === 0,
-            sorter: (a, b) => a.name.length - b.name.length,
-            sortDirections: ["descend"],
-        },
-        {
-            title: "Man Power",
-            dataIndex: "manPower",
-            defaultSortOrder: "descend",
-            sorter: (a, b) => a.manPower - b.manPower,
-        },
-        {
-            title: "Location",
-            dataIndex: "location",
-            filters: [
-                {
-                    text: "Location 1",
-                    value: "Location 1",
-                },
-                {
-                    text: "Location 2",
-                    value: "Location 2",
-                },
-                {
-                    text: "Location 3",
-                    value: "Location 3",
-                },
-            ],
-            onFilter: (value, record) => record.location.indexOf(value) === 0,
-        },
-        {
-            title: "Service Type",
-            dataIndex: "serviceType",
-            filters: [
-                {
-                    text: "Labor",
-                    value: "labor",
-                },
-                {
-                    text: "Cleaning",
-                    value: "cleaning",
-                },
-                {
-                    text: "More Service",
-                    value: "More Service",
-                },
-                {
-                    text: "More Slavery",
-                    value: "More Slavery",
-                },
-            ],
-            onFilter: (value, record) =>
-                record.serviceType.indexOf(value) === 0,
-        },
-        {
-            title: "Status",
-            dataIndex: "status",
-            filters: [
-                {
-                    text: "Active",
-                    value: "active",
-                },
-                {
-                    text: "Pending",
-                    value: "pending",
-                },
-                {
-                    text: "Completed",
-                    value: "completed",
-                },
-            ],
-            onFilter: (value, record) => record.status.indexOf(value) === 0,
-        },
-    ];
+    useEffect(() => {
+        getRequestInfoList();
+        getOrderHistory();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    const onChange = (pagination, filters, sorter, extra) => {
-        console.log("params", pagination, filters, sorter, extra);
-    };
     return (
         <div className="p-10">
             <div className="font-semibold text-lg pb-2">Order History</div>
@@ -200,14 +47,102 @@ export default function OrderHistory() {
                 parameters, making it easy to locate specific orders based on
                 criteria such as date, status, man power and more.
             </div>
-            <Table
-                columns={columns}
-                dataSource={orderHistory}
-                onChange={onChange}
-                showSorterTooltip={{
-                    target: "sorter-icon",
-                }}
-            />
+
+            <Table dataSource={orderHistory}>
+                <Column title="ID" dataIndex="id" key="id" fixed="left" />
+                <Column
+                    title="Created By"
+                    dataIndex="createdBy"
+                    key="createdBy"
+                />
+                <Column
+                    title="Cost Center ID"
+                    dataIndex="costCenterId"
+                    key="costCenterId"
+                    fixed="left"
+                />
+                <Column
+                    title="Location"
+                    dataIndex="locationId"
+                    key="locationId"
+                    fixed="left"
+                    // render={(_, record) => {
+                    //     <div>
+                    //         {record.locationId}
+                    //         {/* {requestInfoList.location.find((location) =>
+                    //             location.id === record.locationId ? (
+                    //                 <div>{location.locationName}</div>
+                    //             ) : (
+                    //                 <div> HMMM </div>
+                    //             )
+                    //         )} */}
+                    //     </div>;
+                    // }}
+                />
+                <Column
+                    title="Service Type ID"
+                    dataIndex="serviceTypeId"
+                    key="serviceTypeId"
+                    fixed="left"
+                />
+
+                <Column
+                    title="Requested Duration"
+                    dataIndex="requestedduration"
+                    key="requestedduration"
+                    fixed="left"
+                />
+                <Column
+                    title="First Date"
+                    dataIndex="firstDate"
+                    key="firstDate"
+                    fixed="left"
+                />
+                <Column
+                    title="Second Date"
+                    dataIndex="secondDate"
+                    key="secondDate"
+                />
+                <Column
+                    title="More Info"
+                    key="action"
+                    fixed="right"
+                    render={(_, record) => (
+                        <Popover
+                            content={
+                                <div className="flex flex-col justify-evenly">
+                                    <div className="text-center flex">
+                                        <p className="font-semibold pb-2 pr-2">
+                                            Job Status —
+                                        </p>
+                                        <p>{record.jobStatus}</p>
+                                    </div>
+                                    <div className="text-center flex">
+                                        <p className="font-semibold pb-2 pr-2">
+                                            Overtime Duration —
+                                        </p>
+                                        <p>{record.oTduration}</p>
+                                    </div>
+                                    <div className="text-center pb-2 flex">
+                                        <p className="font-semibold pb-2 pr-2">
+                                            Created At —
+                                        </p>
+                                        <p>
+                                            {moment(record.createdAt).format(
+                                                "MMMM Do YYYY, h:mm:ss a"
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                            title=""
+                            trigger="hover"
+                        >
+                            <Button> More Info </Button>
+                        </Popover>
+                    )}
+                />
+            </Table>
 
             {/* <List
                 size="large"
