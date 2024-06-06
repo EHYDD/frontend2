@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Spin } from "antd";
+import { message, Modal, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { API_BASE } from "../../../config/config";
@@ -40,6 +40,7 @@ export default function UserManagementPage() {
             }
         );
         if (response.status === 200) {
+            message.success(`User Blocked Successfully`);
             getApprovedUsers();
             setIsBlockingEmail(false);
             setModal2Open(false);
@@ -60,6 +61,7 @@ export default function UserManagementPage() {
             }
         );
         if (response.status === 200) {
+            message.success(`User Unblocked Successfully`);
             getApprovedUsers();
             setIsUnblockingEmail("0");
         }

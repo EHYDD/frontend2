@@ -5,7 +5,7 @@ import {
     UnlockOutlined,
     UndoOutlined,
 } from "@ant-design/icons";
-import { Button, Modal, Space, Spin, Table, Tag } from "antd";
+import { Button, message, Modal, Space, Spin, Table, Tag } from "antd";
 import { API_BASE } from "../../../config/config";
 import Column from "antd/es/table/Column";
 import { useEffect, useState } from "react";
@@ -86,6 +86,7 @@ export default function AddNewDataPage() {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
+        message.success(`Location Deleted Successfully`);
         getLocations();
         setModal2Open(false);
     }
@@ -95,6 +96,7 @@ export default function AddNewDataPage() {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
+        message.success(`Cost Center Deleted Successfully`);
         getCostCenters();
         setModal2Open(false);
     }
@@ -104,6 +106,7 @@ export default function AddNewDataPage() {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
+        message.success(`Service Deleted Successfully`);
         getServiceType();
         setModal2Open(false);
     }
@@ -127,9 +130,7 @@ export default function AddNewDataPage() {
                         className="border rounded-lg px-3 py-1 bg-white"
                     />
                     <div className="h-5"></div>
-                    <label className="pb-2">
-                        Pass Status {selectedPassStatus}
-                    </label>
+                    <label className="pb-2">Pass Status</label>
                     <div className="flex gap-2">
                         <Button
                             type={
@@ -230,6 +231,7 @@ export default function AddNewDataPage() {
             passStatus: selectedPassStatus,
         });
         if (response.status === 200 || response.status === 201) {
+            message.success(`Location Added Successfully`);
             getLocations();
             setAddModalOpen(false);
         }
@@ -246,6 +248,7 @@ export default function AddNewDataPage() {
             costCenterNumber: costCenterNumber.toString().trim(),
         });
         if (response.status === 200 || response.status === 201) {
+            message.success(`Cost Center added Successfully`);
             getCostCenters();
             setAddModalOpen(false);
         }
@@ -265,6 +268,7 @@ export default function AddNewDataPage() {
             otRate: otRate.toString().trim(),
         });
         if (response.status === 200 || response.status === 201) {
+            message.success(`Service Type added Successfully`);
             getServiceType();
             setAddModalOpen(false);
         }
@@ -397,6 +401,7 @@ export default function AddNewDataPage() {
             }
         );
         if (response.status === 200 || response.status === 201) {
+            message.success(`Location Edited Successfully`);
             getLocations();
             setEditModalOpen(false);
         }
@@ -418,6 +423,7 @@ export default function AddNewDataPage() {
             }
         );
         if (response.status === 200 || response.status === 201) {
+            message.success(`Cost Center Edited Successfully`);
             getCostCenters();
             setEditModalOpen(false);
         }
@@ -446,6 +452,7 @@ export default function AddNewDataPage() {
             }
         );
         if (response.status === 200 || response.status === 201) {
+            message.success(`Service Type Edited Successfully`);
             getServiceType();
             setEditModalOpen(false);
         }

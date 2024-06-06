@@ -107,13 +107,13 @@ export default function AnalyticsPage() {
 
             <div className="flex justify-evenly pb-14">
                 <Statistic
-                    title="Active Users"
+                    title="Approved Users"
                     value={112893}
                     formatter={formatter}
                     className="border border-zinc-300 text-center px-14 py-5 shadow-lg hover:shadow-xl rounded-xl"
                 />
                 <Statistic
-                    title="Account Users"
+                    title="Number of Laborers"
                     value={112893}
                     precision={2}
                     formatter={formatter}
@@ -149,6 +149,7 @@ export default function AnalyticsPage() {
                         ]}
                         width={500}
                         height={300}
+                        // colors={["yellow"]}
                     />
                 </div>
                 <div className="flex flex-col justify-center pb-10 w-fit">
@@ -180,6 +181,7 @@ export default function AnalyticsPage() {
                         layout="horizontal"
                         grid={{ vertical: true }}
                         {...chartSetting}
+                        // colors={["navy"]}
                     />
                 </div>
                 <div className="flex flex-col justify-center pb-10 w-fit">

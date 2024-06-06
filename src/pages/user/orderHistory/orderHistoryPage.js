@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { List, Collapse, Table, Button, Popover } from "antd";
+import { List, Collapse, Table, Button, Popover, Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { API_BASE } from "../../../config/config";
 import { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import moment from "moment";
 export default function OrderHistory() {
     let savedToken = localStorage.getItem("token");
 
+    const [isLoading, setIsLoading] = useState(true);
     const [orderHistory, setOrderHistory] = useState([]);
     async function getOrderHistory() {
         let response = await axios.get(
@@ -24,12 +26,14 @@ export default function OrderHistory() {
 
     const [requestInfoList, setRequestInfoList] = useState(0);
     async function getRequestInfoList() {
+        setIsLoading(true);
         let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
             headers: {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
         setRequestInfoList(response.data);
+        setIsLoading(false);
     }
 
     useEffect(() => {
@@ -48,134 +52,127 @@ export default function OrderHistory() {
                 criteria such as date, status, man power and more.
             </div>
 
-            <Table dataSource={orderHistory}>
-                <Column title="ID" dataIndex="id" key="id" fixed="left" />
-                <Column
-                    title="Created By"
-                    dataIndex="createdBy"
-                    key="createdBy"
-                />
-                <Column
-                    title="Cost Center ID"
-                    dataIndex="costCenterId"
-                    key="costCenterId"
-                    fixed="left"
-                />
-                <Column
-                    title="Location"
-                    dataIndex="locationId"
-                    key="locationId"
-                    fixed="left"
-                    // render={(_, record) => {
-                    //     <div>
-                    //         {record.locationId}
-                    //         {/* {requestInfoList.location.find((location) =>
-                    //             location.id === record.locationId ? (
-                    //                 <div>{location.locationName}</div>
-                    //             ) : (
-                    //                 <div> HMMM </div>
-                    //             )
-                    //         )} */}
-                    //     </div>;
-                    // }}
-                />
-                <Column
-                    title="Service Type ID"
-                    dataIndex="serviceTypeId"
-                    key="serviceTypeId"
-                    fixed="left"
-                />
-
-                <Column
-                    title="Requested Duration"
-                    dataIndex="requestedduration"
-                    key="requestedduration"
-                    fixed="left"
-                />
-                <Column
-                    title="First Date"
-                    dataIndex="firstDate"
-                    key="firstDate"
-                    fixed="left"
-                />
-                <Column
-                    title="Second Date"
-                    dataIndex="secondDate"
-                    key="secondDate"
-                />
-                <Column
-                    title="More Info"
-                    key="action"
-                    fixed="right"
-                    render={(_, record) => (
-                        <Popover
-                            content={
-                                <div className="flex flex-col justify-evenly">
-                                    <div className="text-center flex">
-                                        <p className="font-semibold pb-2 pr-2">
-                                            Job Status —
-                                        </p>
-                                        <p>{record.jobStatus}</p>
-                                    </div>
-                                    <div className="text-center flex">
-                                        <p className="font-semibold pb-2 pr-2">
-                                            Overtime Duration —
-                                        </p>
-                                        <p>{record.oTduration}</p>
-                                    </div>
-                                    <div className="text-center pb-2 flex">
-                                        <p className="font-semibold pb-2 pr-2">
-                                            Created At —
-                                        </p>
-                                        <p>
-                                            {moment(record.createdAt).format(
-                                                "MMMM Do YYYY, h:mm:ss a"
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
+            <div>
+                {isLoading === true ? (
+                    <div>
+                        <Spin
+                            indicator={
+                                <LoadingOutlined
+                                    style={{
+                                        fontSize: 25,
+                                    }}
+                                    spin
+                                />
                             }
-                            title=""
-                            trigger="hover"
-                        >
-                            <Button> More Info </Button>
-                        </Popover>
-                    )}
-                />
-            </Table>
-
-            {/* <List
-                size="large"
-                header={
-                    <div className="font-bold text-2xl"> Order History </div>
-                }
-                footer={<div className="font-bold text-xl"> End of Orders </div>}
-                bordered
-                dataSource={                    
-                    orderHistory.map((value, index) => {
-                        return <div key={index} className="flex justify-between items-center">
-                            <p className="pr-5 font-semibold"> {index+1} </p>
-                            <Collapse
-                                items={[{
-                                    key: index,
-                                    label: <div className="font-semibold text-xl pr-96"> {value.date} </div>,
-                                    children: <div> 
-                                        <p> <span className="font-semibold"> Man Power </span>: {value.manPower} </p>
-                                        <p> <span className="font-semibold"> Location </span>: {value.location} </p>
-                                        <p> <span className="font-semibold"> Service Type </span>: {value.serviceType} </p>
-                                        <p> <span className="font-semibold"> Date Range </span>: {value.dateRange[0]} — {value.dateRange[1]} </p>
-                                    </div>,
-                                }]}
+                        />
+                    </div>
+                ) : (
+                    <div>
+                        <Table dataSource={orderHistory}>
+                            <Column
+                                title="ID"
+                                dataIndex="id"
+                                key="id"
+                                fixed="left"
                             />
-                            <div className="w-5"></div>
-                            <div className="border border-zinc-300 rounded-xl w-36 py-2 text-center px-2">
-                                {value.status}
-                            </div>
-                        </div>
-                    })
-                }
-                renderItem={(item) => <List.Item>{item}</List.Item>}
-            /> */}
+                            <Column
+                                title="Created By"
+                                dataIndex="createdBy"
+                                key="createdBy"
+                            />
+                            <Column
+                                title="Cost Center ID"
+                                dataIndex="costCenterId"
+                                key="costCenterId"
+                                fixed="left"
+                            />
+                            <Column
+                                title="Location"
+                                dataIndex="locationId"
+                                key="locationId"
+                                fixed="left"
+                                // render={(_, record) => {
+                                //     <div>
+                                //         {record.locationId}
+                                //         {/* {requestInfoList.location.find((location) =>
+                                //             location.id === record.locationId ? (
+                                //                 <div>{location.locationName}</div>
+                                //             ) : (
+                                //                 <div> HMMM </div>
+                                //             )
+                                //         )} */}
+                                //     </div>;
+                                // }}
+                            />
+                            <Column
+                                title="Service Type ID"
+                                dataIndex="serviceTypeId"
+                                key="serviceTypeId"
+                                fixed="left"
+                            />
+
+                            <Column
+                                title="Requested Duration"
+                                dataIndex="requestedduration"
+                                key="requestedduration"
+                                fixed="left"
+                            />
+                            <Column
+                                title="First Date"
+                                dataIndex="firstDate"
+                                key="firstDate"
+                                fixed="left"
+                            />
+                            <Column
+                                title="Second Date"
+                                dataIndex="secondDate"
+                                key="secondDate"
+                            />
+                            <Column
+                                title="More Info"
+                                key="action"
+                                fixed="right"
+                                render={(_, record) => (
+                                    <Popover
+                                        content={
+                                            <div className="flex flex-col justify-evenly">
+                                                <div className="text-center flex">
+                                                    <p className="font-semibold pb-2 pr-2">
+                                                        Job Status —
+                                                    </p>
+                                                    <p>{record.jobStatus}</p>
+                                                </div>
+                                                <div className="text-center flex">
+                                                    <p className="font-semibold pb-2 pr-2">
+                                                        Overtime Duration —
+                                                    </p>
+                                                    <p>{record.oTduration}</p>
+                                                </div>
+                                                <div className="text-center pb-2 flex">
+                                                    <p className="font-semibold pb-2 pr-2">
+                                                        Created At —
+                                                    </p>
+                                                    <p>
+                                                        {moment(
+                                                            record.createdAt
+                                                        ).format(
+                                                            "MMMM Do YYYY, h:mm:ss a"
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        }
+                                        title=""
+                                        trigger="hover"
+                                    >
+                                        <Button> More Info </Button>
+                                    </Popover>
+                                )}
+                            />
+                        </Table>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

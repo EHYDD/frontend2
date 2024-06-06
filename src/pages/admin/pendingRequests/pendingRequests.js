@@ -290,7 +290,7 @@ export default function PendingRequests() {
                                 rejectRequest();
                             }}
                         >
-                            Confirm Delete
+                            Confirm Reject
                         </Button>
                         <CancelBtn />
                         {/* <OkBtn /> */}
