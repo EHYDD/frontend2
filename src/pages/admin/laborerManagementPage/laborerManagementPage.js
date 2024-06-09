@@ -221,23 +221,23 @@ export default function LaborerManagementPage() {
         }
     }
 
-    // const props = {
-    //     name: "file",
-    //     action: `${https}/Upload`,
-    //     headers: {
-    //         authorization: "authorization-text",
-    //     },
-    //     onChange(info) {
-    //         if (info.file.status !== "uploading") {
-    //             console.log(info.file, info.fileList);
-    //         }
-    //         if (info.file.status === "done") {
-    //             message.success(`${info.file.name} file uploaded successfully`);
-    //         } else if (info.file.status === "error") {
-    //             message.error(`${info.file.name} file upload failed.`);
-    //         }
-    //     },
-    // };
+    const props = {
+        name: "file",
+        action: `/Upload`,
+        headers: {
+            authorization: "authorization-text",
+        },
+        onChange(info) {
+            if (info.file.status !== "uploading") {
+                console.log(info.file, info.fileList);
+            }
+            if (info.file.status === "done") {
+                message.success(`${info.file.name} file uploaded successfully`);
+            } else if (info.file.status === "error") {
+                message.error(`${info.file.name} file upload failed.`);
+            }
+        },
+    };
 
     const [data, setData] = useState([]);
     async function handleFileUpload(event) {
@@ -274,9 +274,6 @@ export default function LaborerManagementPage() {
                 allows you to filter and sort the information using various
                 parameters, making it easy to locate specific orders based on
                 criteria such as date, status, man power and more.
-                <br />
-                {data.toString()} --
-                <br />
             </div>
             <div>
                 <div className="flex justify-between pb-5">
@@ -291,16 +288,16 @@ export default function LaborerManagementPage() {
                         <></>
                     ) : (
                         <div className="flex gap-4">
-                            <input
+                            {/* <input
                                 type="file"
                                 accept=".xlsx, .xls, .csv"
                                 onChange={handleFileUpload}
-                            />
-                            {/* <Upload {...props}> 
+                            /> */}
+                            <Upload {...props}>
                                 <Button icon={<UploadOutlined />}>
                                     Click to Upload
                                 </Button>
-                            </Upload> */}
+                            </Upload>
 
                             <Button
                                 type="primary"

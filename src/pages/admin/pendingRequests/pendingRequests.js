@@ -1,4 +1,4 @@
-import { Button, Modal, Popover, Space, Spin, Table } from "antd";
+import { Button, Modal, Popover, Space, Spin, Table, Tabs, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import axios from "axios";
 // import { jwtDecode } from "jwt-decode";
@@ -6,23 +6,28 @@ import { API_BASE } from "../../../config/config";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { LoadingOutlined } from "@ant-design/icons";
+import { Info, InfoIcon, LucideInfo } from "lucide-react";
 
 export default function PendingRequests() {
     let savedToken = localStorage.getItem("token");
     const [isLoading, setLoading] = useState(true);
 
-    const [pendingRequests, setPendingRequests] = useState([]);
     const [modalMessage, setModalMessage] = useState("");
     const [modal2Open, setModal2Open] = useState(false);
     const [modalBodyContent, setModalBodyContent] = useState("");
 
+    const [pendingRequests, setPendingRequests] = useState([]);
     async function getPendingRequests() {
-        let response = await axios.get(`${API_BASE}/Requests/AllRequests`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
-            },
-        });
+        let response = await axios.get(
+            `${API_BASE}/temp/requests/get-all-requests`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         setPendingRequests(response.data);
+        console.log(response.data);
         setLoading(false);
     }
 
@@ -74,8 +79,41 @@ export default function PendingRequests() {
         }
     }
 
+    const [requestInfoList, setRequestInfoList] = useState(0);
+    async function getRequestInfoList() {
+        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
+            },
+        });
+        setRequestInfoList(response.data);
+        console.log(response.data);
+        setLoading(false);
+    }
+
+    const [todaysRequests, setTodaysRequests] = useState([]);
+    async function getTodaysRequests() {
+        let response = await axios.get(
+            `${API_BASE}/temp/requests/get-request-by-today`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        setTodaysRequests(response.data);
+        console.log(response.data);
+        setLoading(false);
+    }
+
+    const onChange = (key) => {
+        console.log(key);
+    };
+
     useEffect(() => {
+        getRequestInfoList();
         getPendingRequests();
+        getTodaysRequests();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -86,195 +124,468 @@ export default function PendingRequests() {
                 These are requests waiting for your approval or rejects. Kindly
                 review each request and respond appropriately.
             </p>
-            {isLoading === true ? (
-                <div>
-                    <Spin
-                        indicator={
-                            <LoadingOutlined
-                                style={{
-                                    fontSize: 25,
-                                }}
-                                spin
-                            />
-                        }
-                    />
-                </div>
-            ) : (
-                <div>
-                    <Table
-                        dataSource={pendingRequests}
-                        // expandable={{
-                        //     expandedRowRender: (record) => (
-                        //         <div className="flex justify-evenly">
-                        //             <div className="text-center">
-                        //                 <p className="font-semibold pb-2">
-                        //                     Job Status
-                        //                 </p>
-                        //                 <p>{record.jobStatus}</p>
-                        //             </div>
-                        //             <div className="text-center">
-                        //                 <p className="font-semibold pb-2">
-                        //                     Overtime Duration
-                        //                 </p>
-                        //                 <p>{record.oTduration}</p>
-                        //             </div>
-                        //             <div className="text-center pb-2">
-                        //                 <p className="font-semibold">Created At</p>
-                        //                 <p>
-                        //                     {moment(record.createdAt).format(
-                        //                         "MMMM Do YYYY, h:mm:ss a"
-                        //                     )}
-                        //                 </p>
-                        //             </div>
-                        //         </div>
-                        //     ),
-                        //     expandRowByClick: true,
-                        //     rowExpandable: (record) =>
-                        //         record.id !== "Not Expandable",
-                        // }}
-                    >
-                        <Column
-                            title="ID"
-                            dataIndex="id"
-                            key="id"
-                            fixed="left"
-                        />
-                        <Column
-                            title="Created By"
-                            dataIndex="createdBy"
-                            key="createdBy"
-                        />
-                        <Column
-                            title="Cost Center ID"
-                            dataIndex="costCenterId"
-                            key="costCenterId"
-                            fixed="left"
-                        />
-                        <Column
-                            title="Location"
-                            dataIndex="locationId"
-                            key="locationId"
-                            fixed="left"
-                        />
-                        <Column
-                            title="Service Type ID"
-                            dataIndex="serviceTypeId"
-                            key="serviceTypeId"
-                            fixed="left"
-                        />
+            <Tabs
+                onChange={onChange}
+                type="card"
+                items={[
+                    {
+                        label: "Priority Requests",
+                        key: 1,
+                        children: (
+                            <div>
+                                Here are all priority requests pending for
+                                approval
+                            </div>
+                        ),
+                    },
+                    {
+                        label: "Today's Requests",
+                        key: 0,
+                        children: (
+                            <div>
+                                {isLoading === true ? (
+                                    <div>
+                                        <Spin
+                                            indicator={
+                                                <LoadingOutlined
+                                                    style={{
+                                                        fontSize: 25,
+                                                    }}
+                                                    spin
+                                                />
+                                            }
+                                        />
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <Table dataSource={todaysRequests}>
+                                            <Column
+                                                title="Center ID"
+                                                dataIndex="costCenterId"
+                                                key="costCenterId"
+                                                render={(_, record) =>
+                                                    requestInfoList[
+                                                        "costCenters"
+                                                    ].map((value, index) => {
+                                                        return value["id"] ===
+                                                            record.costCenterId ? (
+                                                            <Tag color="purple">
+                                                                {
+                                                                    value[
+                                                                        "callCenterNumber"
+                                                                    ]
+                                                                }
+                                                            </Tag>
+                                                        ) : (
+                                                            ""
+                                                        );
+                                                    })
+                                                }
+                                            />
+                                            <Column
+                                                title="Location ID"
+                                                dataIndex="locationId"
+                                                key="locationId"
+                                                render={(_, record) =>
+                                                    requestInfoList[
+                                                        "location"
+                                                    ].map((value, index) => {
+                                                        return value["id"] ===
+                                                            record.locationId ? (
+                                                            <Tag
+                                                                color="cyan"
+                                                                className="cursor-pointer"
+                                                            >
+                                                                {
+                                                                    value[
+                                                                        "locationName"
+                                                                    ]
+                                                                }
+                                                            </Tag>
+                                                        ) : (
+                                                            ""
+                                                        );
+                                                    })
+                                                }
+                                            />
+                                            {/* <Column
+                                            title="Job Status"
+                                            dataIndex="jobStatus"
+                                            key="jobStatus"
+                                        /> */}
+                                            <Column
+                                                title="Service Type ID"
+                                                dataIndex="serviceTypeId"
+                                                key="serviceTypeId"
+                                                render={(_, record) =>
+                                                    requestInfoList[
+                                                        "serviceType"
+                                                    ].map((value, index) => {
+                                                        return value["id"] ===
+                                                            record.serviceTypeId ? (
+                                                            <div className="flex gap-2">
+                                                                <Popover
+                                                                    content={
+                                                                        <div className="flex text-center">
+                                                                            <p className="font-semibold pr-2">
+                                                                                Payment
+                                                                                Rate
+                                                                                —
+                                                                            </p>
 
-                        <Column
-                            title="Requested Duration"
-                            dataIndex="requestedduration"
-                            key="requestedduration"
-                            fixed="left"
-                        />
-                        <Column
-                            title="First Date"
-                            dataIndex="firstDate"
-                            key="firstDate"
-                            fixed="left"
-                        />
-                        <Column
-                            title="Second Date"
-                            dataIndex="secondDate"
-                            key="secondDate"
-                        />
-                        <Column
-                            title="More Info"
-                            key="action"
-                            fixed="right"
-                            render={(_, record) => (
-                                <Popover
-                                    content={
-                                        <div className="flex flex-col justify-evenly">
-                                            <div className="text-center flex">
-                                                <p className="font-semibold pb-2 pr-2">
-                                                    Job Status —
-                                                </p>
-                                                <p>{record.jobStatus}</p>
-                                            </div>
-                                            <div className="text-center flex">
-                                                <p className="font-semibold pb-2 pr-2">
-                                                    Overtime Duration —
-                                                </p>
-                                                <p>{record.oTduration}</p>
-                                            </div>
-                                            <div className="text-center pb-2 flex">
-                                                <p className="font-semibold pb-2 pr-2">
-                                                    Created At —
-                                                </p>
-                                                <p>
-                                                    {moment(
-                                                        record.createdAt
-                                                    ).format(
-                                                        "MMMM Do YYYY, h:mm:ss a"
-                                                    )}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    }
-                                    title=""
-                                    trigger="hover"
-                                >
-                                    <Button> More Info </Button>
-                                </Popover>
-                            )}
-                        />
+                                                                            {
+                                                                                value[
+                                                                                    "paymentRate"
+                                                                                ]
+                                                                            }
+                                                                        </div>
+                                                                    }
+                                                                    title=""
+                                                                    trigger="hover"
+                                                                >
+                                                                    <Tag
+                                                                        color="green"
+                                                                        className="cursor-pointer"
+                                                                    >
+                                                                        {
+                                                                            value[
+                                                                                "title"
+                                                                            ]
+                                                                        }
+                                                                    </Tag>
+                                                                </Popover>
+                                                            </div>
+                                                        ) : (
+                                                            ""
+                                                        );
+                                                    })
+                                                }
+                                            />
+                                            <Column
+                                                title="Man Power"
+                                                dataIndex="manPower"
+                                                key="manPower"
+                                            />
+                                            <Column
+                                                title="Duration (hr)"
+                                                dataIndex="requestedduration"
+                                                key="requestedduration"
+                                            />
+                                            <Column
+                                                title="First Date"
+                                                dataIndex="firstDate"
+                                                key="firstDate"
+                                                render={(_, record) =>
+                                                    record.secondDate
+                                                }
+                                            />
+                                            {/* <Column
+                                                title="Second Date"
+                                                dataIndex="secondDate"
+                                                key="secondDate"
+                                            /> */}
+                                            <Column
+                                                title="More Info"
+                                                key="action"
+                                                fixed="right"
+                                                render={(_, record) => (
+                                                    <Popover
+                                                        content={
+                                                            <div className="flex flex-col justify-evenly">
+                                                                <div className="text-center flex">
+                                                                    <p className="font-semibold pb-2 pr-2">
+                                                                        Requester
+                                                                        —
+                                                                    </p>
+                                                                    <p>
+                                                                        {
+                                                                            record.createdBy
+                                                                        }
+                                                                    </p>
+                                                                </div>
+                                                                {record
+                                                                    .serviceRequestMessage
+                                                                    .length >
+                                                                1 ? (
+                                                                    <div className="text-center flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
+                                                                            Message
+                                                                            —
+                                                                        </p>
+                                                                        <p>
+                                                                            {
+                                                                                record.serviceRequestMessage
+                                                                            }
+                                                                        </p>
+                                                                    </div>
+                                                                ) : (
+                                                                    ""
+                                                                )}
 
-                        {/* <Column
-                        title="jobStatus"
-                        dataIndex="jobStatus" 
-                        key="jobStatus"
-                    />
-                    <Column
-                        title="oTduration"
-                        dataIndex="oTduration"
-                        key="oTduration"
-                    />
-                    
-                    <Column
-                        title="createdAt"
-                        dataIndex="createdAt"
-                        key="createdAt"
-                    />
-                    
-                    */}
+                                                                <div className="text-center pb-2 flex">
+                                                                    <p className="font-semibold pb-2 pr-2">
+                                                                        Created
+                                                                        At —
+                                                                    </p>
+                                                                    <p>
+                                                                        {moment(
+                                                                            record.createdAt
+                                                                        ).format(
+                                                                            "MMMM Do YYYY, h:mm:ss a"
+                                                                        )}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        title=""
+                                                        trigger="hover"
+                                                    >
+                                                        <Button>
+                                                            More Info{" "}
+                                                        </Button>
+                                                    </Popover>
+                                                )}
+                                            />
+                                            <Column
+                                                title="Action"
+                                                key="action"
+                                                render={(_, record) => (
+                                                    <Space size="middle">
+                                                        <Button type="primary">
+                                                            Assign
+                                                        </Button>
+                                                    </Space>
+                                                )}
+                                            />
+                                        </Table>
+                                    </div>
+                                )}
+                            </div>
+                        ),
+                    },
+                    {
+                        label: "Pending Approval",
+                        key: 2,
+                        children: (
+                            <div>
+                                {isLoading === true ? (
+                                    <div>
+                                        <Spin
+                                            indicator={
+                                                <LoadingOutlined
+                                                    style={{
+                                                        fontSize: 25,
+                                                    }}
+                                                    spin
+                                                />
+                                            }
+                                        />
+                                    </div>
+                                ) : (
+                                    <Table dataSource={pendingRequests}>
+                                        <Column
+                                            title="Center ID"
+                                            dataIndex="costCenterId"
+                                            key="costCenterId"
+                                            render={(_, record) =>
+                                                requestInfoList[
+                                                    "costCenters"
+                                                ].map((value, index) => {
+                                                    return value["id"] ===
+                                                        record.costCenterId ? (
+                                                        <Tag color="purple">
+                                                            {
+                                                                value[
+                                                                    "callCenterNumber"
+                                                                ]
+                                                            }
+                                                        </Tag>
+                                                    ) : (
+                                                        ""
+                                                    );
+                                                })
+                                            }
+                                        />
+                                        <Column
+                                            title="Location ID"
+                                            dataIndex="locationId"
+                                            key="locationId"
+                                            render={(_, record) =>
+                                                requestInfoList["location"].map(
+                                                    (value, index) => {
+                                                        return value["id"] ===
+                                                            record.locationId ? (
+                                                            <Tag
+                                                                color="cyan"
+                                                                className="cursor-pointer"
+                                                            >
+                                                                {
+                                                                    value[
+                                                                        "locationName"
+                                                                    ]
+                                                                }
+                                                            </Tag>
+                                                        ) : (
+                                                            ""
+                                                        );
+                                                    }
+                                                )
+                                            }
+                                        />
+                                        {/* <Column
+                                            title="Job Status"
+                                            dataIndex="jobStatus"
+                                            key="jobStatus"
+                                        /> */}
+                                        <Column
+                                            title="Service Type ID"
+                                            dataIndex="serviceTypeId"
+                                            key="serviceTypeId"
+                                            render={(_, record) =>
+                                                requestInfoList[
+                                                    "serviceType"
+                                                ].map((value, index) => {
+                                                    return value["id"] ===
+                                                        record.serviceTypeId ? (
+                                                        <div className="flex gap-2">
+                                                            <Popover
+                                                                content={
+                                                                    <div className="flex text-center">
+                                                                        <p className="font-semibold pr-2">
+                                                                            Payment
+                                                                            Rate
+                                                                            —
+                                                                        </p>
 
-                        {/* <Column
-                    title="Status"
-                    dataIndex="status"
-                    key="status"
-                    render={(status) => (
-                        <Tag color={"purple"} key={status}>
-                            {status.toUpperCase()}
-                        </Tag>
-                    )}
-                /> */}
-                        <Column
-                            title="Action"
-                            key="action"
-                            fixed="right"
-                            render={(_, record) => (
-                                <Space size="middle">
-                                    <Button
-                                        type="primary"
-                                        onClick={() => approveRequest(record)}
-                                    >
-                                        Approve
-                                    </Button>
-                                    <Button
-                                        danger
-                                        onClick={() => setModalMessages(record)}
-                                    >
-                                        Reject
-                                    </Button>
-                                </Space>
-                            )}
-                        />
-                    </Table>
-                </div>
-            )}
+                                                                        {
+                                                                            value[
+                                                                                "paymentRate"
+                                                                            ]
+                                                                        }
+                                                                    </div>
+                                                                }
+                                                                title=""
+                                                                trigger="hover"
+                                                            >
+                                                                <Tag
+                                                                    color="green"
+                                                                    className="cursor-pointer"
+                                                                >
+                                                                    {
+                                                                        value[
+                                                                            "title"
+                                                                        ]
+                                                                    }
+                                                                </Tag>
+                                                            </Popover>
+                                                        </div>
+                                                    ) : (
+                                                        ""
+                                                    );
+                                                })
+                                            }
+                                        />
+                                        <Column
+                                            title="Man Power"
+                                            dataIndex="manPower"
+                                            key="manPower"
+                                        />
+                                        <Column
+                                            title="Duration (hr)"
+                                            dataIndex="requestedduration"
+                                            key="requestedduration"
+                                        />
+                                        <Column
+                                            title="Date"
+                                            dataIndex="firstDate"
+                                            key="firstDate"
+                                            render={(_, record) =>
+                                                record.secondDate
+                                            }
+                                        />
+                                        <Column
+                                            title="Second Date"
+                                            dataIndex="secondDate"
+                                            key="secondDate"
+                                        />
+                                        <Column
+                                            title="More Info"
+                                            key="action"
+                                            fixed="right"
+                                            render={(_, record) => (
+                                                <Popover
+                                                    content={
+                                                        <div className="flex flex-col justify-evenly">
+                                                            <div className="text-center flex">
+                                                                <p className="font-semibold pb-2 pr-2">
+                                                                    Requester —
+                                                                </p>
+                                                                <p>
+                                                                    {
+                                                                        record.createdBy
+                                                                    }
+                                                                </p>
+                                                            </div>
+                                                            {record
+                                                                .serviceRequestMessage
+                                                                .length > 1 ? (
+                                                                <div className="text-center flex">
+                                                                    <p className="font-semibold pb-2 pr-2">
+                                                                        Message
+                                                                        —
+                                                                    </p>
+                                                                    <p>
+                                                                        {
+                                                                            record.serviceRequestMessage
+                                                                        }
+                                                                    </p>
+                                                                </div>
+                                                            ) : (
+                                                                ""
+                                                            )}
+
+                                                            <div className="text-center pb-2 flex">
+                                                                <p className="font-semibold pb-2 pr-2">
+                                                                    Created At —
+                                                                </p>
+                                                                <p>
+                                                                    {moment(
+                                                                        record.createdAt
+                                                                    ).format(
+                                                                        "MMMM Do YYYY, h:mm:ss a"
+                                                                    )}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    title=""
+                                                    trigger="hover"
+                                                >
+                                                    <Button>More Info </Button>
+                                                </Popover>
+                                            )}
+                                        />
+                                        <Column
+                                            title="Action"
+                                            key="action"
+                                            render={(_, record) => (
+                                                <Space size="middle">
+                                                    <Button type="primary">
+                                                        Approve
+                                                    </Button>
+                                                    <Button danger>
+                                                        Reject
+                                                    </Button>
+                                                </Space>
+                                            )}
+                                        />
+                                    </Table>
+                                )}
+                            </div>
+                        ),
+                    },
+                ]}
+            />
 
             {/* DELETE CONFIRMATION */}
             <Modal

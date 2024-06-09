@@ -35,7 +35,6 @@ function App() {
                         path="/adminDashboard"
                         element={<AdminDashboard />}
                     ></Route>
-                    x
                 </Routes>
             )}
         </div>

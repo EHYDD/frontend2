@@ -64,7 +64,7 @@ export default function UserDashboard() {
                 <div className="h-full w-full rounded-xl bg-white text-black text-xl overflow-scroll ">
                     <div className="h-full overflow-scroll">
                         {currentPage === 0 ? (
-                            <LaborRequestPage />
+                            <LaborRequestPage changePage={changePage} />
                         ) : currentPage === 1 ? (
                             <OrderHistory />
                         ) : (

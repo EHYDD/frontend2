@@ -4,54 +4,104 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../../config/config";
-import { Spin } from "antd";
+import { message, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 
 let currentEmail = "";
+let currentPassword = "";
 
 export default function LoginPage() {
     const navigate = useNavigate();
     const [loginError, setLoginError] = useState(false);
     const [enterOTP, setOTP] = useState(false);
     const [isSendingOTP, setSendingOTP] = useState(false);
-    const [isSigningIn, setSigningIn] = useState(false);
 
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
     async function login() {
-        setSendingOTP(true);
-
+        setIsLoggingIn(true);
         let email = document.getElementById("email").value;
         let password = document.getElementById("password").value;
         currentEmail = email;
+        currentPassword = password;
 
-        let response = await axios.post(`${API_BASE}/auth/login`, {
-            email: email.toString().trim(),
-            password: password.toString().trim(),
-        });
-        if (response.status === 200) {
-            // setOTP(true);
-            let token = response.data["token"];
-            let decoded = jwtDecode(token);
-            localStorage.setItem("token", token);
+        try {
+            let response = await axios.post(`${API_BASE}/auth/login`, {
+                email: email.toString().trim(),
+                password: password.toString().trim(),
+            });
 
-            console.log(token);
+            if (response.status === 200 || response.status === 201) {
+                setIsLoggingIn(false);
+                let token = response.data["token"];
+                console.log(token);
+                let decoded = jwtDecode(token);
+                localStorage.setItem("token", token);
 
-            if (decoded["role"] === "Admin") {
-                navigate("/adminDashboard");
-                setLoginError(false);
-            } else if (decoded["role"] === "User") {
-                navigate("/dashboard");
-                setLoginError(false);
+                if (decoded["role"] === "Admin") {
+                    setLoginError(false);
+                    navigate("/adminDashboard");
+                } else if (decoded["role"] === "User") {
+                    setLoginError(false);
+                    navigate("/dashboard");
+                } else {
+                    // TODO REMOVE THIS
+                    setLoginError(true);
+                    message.error("Incorrect Username or Password.");
+                }
             } else {
-                // TODO REMOVE THIS
-                navigate("/dashboard");
                 setLoginError(true);
+                message.error("Incorrect Username or Password.");
+                setIsLoggingIn(false);
             }
+        } catch (e) {
+            setIsLoggingIn(false);
+            message.error("Incorrect Username or Password.");
         }
     }
 
-    async function loginWithOTP() {
-        setSigningIn(true);
+    const [isSigningIn, setIsSigningIn] = useState(false);
+    async function signUp() {
+        setIsSigningIn(true);
+        let email = document.getElementById("email").value;
+        let password = document.getElementById("password").value;
+        currentEmail = email;
+        currentPassword = password;
+
+        try {
+            let response = await axios.post(`${API_BASE}/auth/register`, {
+                email: email.toString().trim(),
+                password: password.toString().trim(),
+            });
+
+            console.log(response.status);
+            setSendingOTP(true);
+
+            if (response.status === 200 || response.status === 201) {
+            }
+            //     let token = response.data["token"];
+            //     let decoded = jwtDecode(token);
+            //     localStorage.setItem("token", token);
+
+            //     if (decoded["role"] === "Admin") {
+            //         setLoginError(false);
+            //         navigate("/adminDashboard");
+            //     } else if (decoded["role"] === "User") {
+            //         setLoginError(false);
+            //         navigate("/dashboard");
+            //     } else {
+            //         // TODO REMOVE THIS
+            //         setLoginError(true);
+            //         message.error("Incorrect Username or Password.");
+            //     }
+            // }
+        } catch (e) {}
+        setIsSigningIn(false);
+    }
+
+    const [isConfirmingOTP, setConfirmingOTP] = useState(false);
+    async function confirmOTP() {
+        setConfirmingOTP(true);
 
         let otp = document.getElementById("otp").value;
         let response = await axios.post(`${API_BASE}/auth/verify-otp`, {
@@ -59,22 +109,28 @@ export default function LoginPage() {
             otp: otp.toString().trim(),
         });
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
+            // LOGIN WHEN OTP CONFIRMS
+            let response = await axios.post(`${API_BASE}/auth/login`, {
+                email: currentEmail.toString().trim(),
+                password: currentPassword.toString().trim(),
+            });
+
             let token = response.data["token"];
-            console.log(token);
             let decoded = jwtDecode(token);
             localStorage.setItem("token", token);
-            // let savedToken = localStorage.getItem("token");
-            // localStorage.removeItem("token");
+            console.log(token);
 
             if (decoded["role"] === "Admin") {
+                setLoginError(false);
                 navigate("/adminDashboard");
-                setLoginError(false);
             } else if (decoded["role"] === "User") {
-                navigate("/dashboard");
                 setLoginError(false);
+                navigate("/dashboard");
             } else {
+                // TODO REMOVE THIS
                 setLoginError(true);
+                message.error("Incorrect Username or Password.");
             }
         }
     }
@@ -82,6 +138,13 @@ export default function LoginPage() {
     const [hidePassword, hideUnhidePassword] = useState(true);
     function hideUnhidePasswordFunc() {
         hideUnhidePassword(!hidePassword);
+    }
+
+    const [isSigningUp, setSignUp] = useState(false);
+    function switchBetweenSignUpSignIn() {
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+        setSignUp(!isSigningUp);
     }
 
     return (
@@ -105,26 +168,113 @@ export default function LoginPage() {
             </div>
             <div className="w-1/2 h-screen flex items-center bg-white">
                 <div className="w-1/2 grid p-10 mx-auto">
-                    {/* <span className="text-4xl font-bold pb-10"> Ethiopian Airlines </span> */}
                     <img
                         src="./assets/airlines-logo.png"
                         alt="logo"
                         className="m-auto w-full p-5"
                     />
-                    <div className="h-14"></div>
-                    {enterOTP === true ? (
-                        <div>
-                            {/* OTP */}
-                            <label className="pb-2"> OTP Number </label>
-                            <input
-                                id="otp"
-                                type="text"
-                                placeholder="OTP..."
-                                className="border rounded-lg px-3 py-1 bg-white"
-                            />
-                            <div className="h-2"></div>
-                            {isSigningIn === true ? (
-                                <div className="bg-green-500 text-white text-center rounded-lg py-2 font-bold cursor-pointer">
+                    <div className="h-5"></div>
+
+                    {isSendingOTP === false ? (
+                        <>
+                            <div className="flex flex-col">
+                                {/* EMAIL */}
+                                <label className="pb-2"> Email </label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    placeholder="email..."
+                                    className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                                />
+                                <div className="h-4"></div>
+
+                                {/* PASSWORD */}
+                                <label className="pb-2"> Password </label>
+                                <div className="flex">
+                                    <input
+                                        id="password"
+                                        type={
+                                            hidePassword === true
+                                                ? "password"
+                                                : "text"
+                                        }
+                                        placeholder="password..."
+                                        className=" w-full border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                                    />
+                                    <div className="h-2"></div>
+
+                                    {hidePassword === true ? (
+                                        <Eye
+                                            size={25}
+                                            className="pl-2 hover:text-blue-500 cursor-pointer"
+                                            onClick={(e) =>
+                                                hideUnhidePasswordFunc()
+                                            }
+                                        />
+                                    ) : (
+                                        <EyeOff
+                                            size={25}
+                                            className="pl-2 hover:text-blue-500 cursor-pointer"
+                                            onClick={(e) =>
+                                                hideUnhidePasswordFunc()
+                                            }
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex justify-between pt-2 pb-8">
+                                {loginError === true ? (
+                                    <div className="text-red-500 pl-2 text-left">
+                                        Incorrect Username or Password
+                                    </div>
+                                ) : (
+                                    <div className="pb-6"> </div>
+                                )}
+
+                                <div className="text-right">
+                                    <span className="hover:underline hover:underline-offset-4 pr-2 hover:text-blue-500 cursor-pointer">
+                                        Forgot Password?
+                                    </span>
+                                </div>
+                            </div>
+                            {isSigningUp === false ? (
+                                <div
+                                    className={
+                                        isLoggingIn === true
+                                            ? "bg-green-500 rounded-lg py-2 text-center"
+                                            : "bg-zinc-900 hover:bg-green-500 text-white hover:text-black text-center rounded-lg py-2 font-semibold cursor-pointer"
+                                    }
+                                    onClick={(e) =>
+                                        isLoggingIn === true
+                                            ? () => {}
+                                            : login()
+                                    }
+                                >
+                                    {isLoggingIn === true ? (
+                                        <Spin
+                                            indicator={
+                                                <LoadingOutlined
+                                                    style={{
+                                                        fontSize: 18,
+                                                        accentColor: "white",
+                                                    }}
+                                                    spin
+                                                />
+                                            }
+                                        />
+                                    ) : (
+                                        "Sign In"
+                                    )}
+                                </div>
+                            ) : isSigningIn === false ? (
+                                <div
+                                    className="bg-zinc-900 hover:bg-green-500 text-white hover:text-black text-center rounded-lg py-2 font-semibold cursor-pointer"
+                                    onClick={(e) => signUp()}
+                                >
+                                    Sign Up
+                                </div>
+                            ) : (
+                                <div className="bg-green-500 text-white text-center rounded-lg py-2">
                                     <Spin
                                         indicator={
                                             <LoadingOutlined
@@ -137,72 +287,46 @@ export default function LoginPage() {
                                         }
                                     />
                                 </div>
+                            )}
+                            {isSigningUp === false ? (
+                                <div className="pt-2 mx-auto text-center">
+                                    Don't have an account?{" "}
+                                    <span
+                                        className="hover:underline hover:underline-offset-4 text-blue-600 cursor-pointer"
+                                        onClick={(e) =>
+                                            switchBetweenSignUpSignIn()
+                                        }
+                                    >
+                                        Sign Up
+                                    </span>
+                                </div>
                             ) : (
-                                <div
-                                    className="bg-zinc-900 hover:bg-green-500 text-white hover:text-black text-center rounded-lg py-2 font-semibold cursor-pointer"
-                                    onClick={(e) => loginWithOTP()}
-                                >
-                                    Sign In
+                                <div className="pt-2 mx-auto text-center">
+                                    Already have an account?{" "}
+                                    <span
+                                        className="hover:underline hover:underline-offset-4 text-blue-600 cursor-pointer"
+                                        onClick={(e) =>
+                                            switchBetweenSignUpSignIn()
+                                        }
+                                    >
+                                        Sign In
+                                    </span>
                                 </div>
                             )}
-                        </div>
+                        </>
                     ) : (
                         <div className="flex flex-col">
-                            {/* EMAIL */}
-                            <label className="pb-2"> Email </label>
+                            {/* OTP */}
+                            <label className="pb-2"> OTP </label>
                             <input
-                                id="email"
-                                type="email"
-                                placeholder="email..."
-                                className="border rounded-lg px-3 py-1 bg-white"
+                                id="otp"
+                                type="otp"
+                                placeholder="OTP..."
+                                className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
                             />
-                            <div className="h-2"></div>
-
-                            {/* PASSWORD */}
-                            <label className="pb-2"> Password </label>
-                            <div className="flex justify-center items-center">
-                                <input
-                                    id="password"
-                                    type={
-                                        hidePassword === true
-                                            ? "password"
-                                            : "text"
-                                    }
-                                    placeholder="password"
-                                    className="border rounded-lg px-3 py-1 bg-white w-full"
-                                />
-                                {hidePassword === true ? (
-                                    <Eye
-                                        size={25}
-                                        className="pl-2"
-                                        onClick={(e) =>
-                                            hideUnhidePasswordFunc()
-                                        }
-                                    />
-                                ) : (
-                                    <EyeOff
-                                        size={25}
-                                        className="pl-2"
-                                        onClick={(e) =>
-                                            hideUnhidePasswordFunc()
-                                        }
-                                    />
-                                )}
-                            </div>
-                            <div className="pt-2 text-right">
-                                <span className="underline pr-2 hover:text-green-500 cursor-pointer">
-                                    Forgot Password?
-                                </span>
-                            </div>
-                            {loginError === true ? (
-                                <div className="text-red-500 pt-5 pb-6 text-center">
-                                    Incorrect Username or Password
-                                </div>
-                            ) : (
-                                <div className="pb-6"> </div>
-                            )}
-                            {isSendingOTP === true ? (
-                                <div className="bg-green-500 text-white text-center rounded-lg py-2 font-bold cursor-pointer">
+                            <div className="h-4"></div>
+                            {isConfirmingOTP === true ? (
+                                <div className="bg-green-500 text-white text-center rounded-lg py-2">
                                     <Spin
                                         indicator={
                                             <LoadingOutlined
@@ -218,15 +342,13 @@ export default function LoginPage() {
                             ) : (
                                 <div
                                     className="bg-zinc-900 hover:bg-green-500 text-white hover:text-black text-center rounded-lg py-2 font-semibold cursor-pointer"
-                                    onClick={(e) => login()}
+                                    onClick={(e) => confirmOTP()}
                                 >
-                                    Sign In
+                                    Confirm OTP
                                 </div>
                             )}
                         </div>
                     )}
-
-                    {/* </Link> */}
                 </div>
             </div>
         </div>

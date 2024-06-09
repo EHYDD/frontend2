@@ -505,7 +505,7 @@ export default function AddNewDataPage() {
                     />
                 </div>
             ) : (
-                <div>
+                <div className="overflow-scroll no-scrollbar">
                     {/* LOCATION */}
                     <div className="flex justify-between pb-5">
                         <div className="font-semibold text-lg pb-2">
@@ -519,7 +519,7 @@ export default function AddNewDataPage() {
                             New Location
                         </Button>
                     </div>
-                    <div>
+                    <div className="no-scrollbar">
                         <Table dataSource={locationList}>
                             <Column title="ID" dataIndex="id" key="id" />
                             <Column

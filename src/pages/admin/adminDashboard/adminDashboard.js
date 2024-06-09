@@ -3,6 +3,7 @@ import {
     CirclePlus,
     LineChart,
     LogOut,
+    PersonStandingIcon,
     Plus,
     Sparkle,
     UserSearch,
@@ -18,6 +19,7 @@ import MonthlySchedulePage from "../monthlySchedulePage/monthlySchedulePage";
 import UserManagementPage from "../userManagementPage/userManagementPage";
 import LaborerManagementPage from "../laborerManagementPage/laborerManagementPage";
 import AddNewDataPage from "../addNewDataPage/addNewDataPage";
+import AttendancePage from "../attendancePage/attendancePage";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -93,6 +95,13 @@ export default function AdminDashboard() {
                                 isSelected={currentPage === 6 ? true : false}
                             />
                         </div>
+                        <div onClick={(e) => changePage(7)}>
+                            <SidePanelButton
+                                icon={<PersonStandingIcon />}
+                                title="Attendance"
+                                isSelected={currentPage === 7 ? true : false}
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -125,8 +134,10 @@ export default function AdminDashboard() {
                             <LaborerManagementPage />
                         ) : currentPage === 6 ? (
                             <AddNewDataPage />
+                        ) : currentPage === 7 ? (
+                            <AttendancePage />
                         ) : (
-                            <div> ABCDEF GHIJKLM </div>
+                            <div></div>
                         )}
                     </div>
                 </div>

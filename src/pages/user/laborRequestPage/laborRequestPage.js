@@ -12,25 +12,24 @@ import {
     Row,
     Slider,
     DatePicker,
+    message,
+    Result,
 } from "antd";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { API_BASE } from "../../../config/config";
 import moment from "moment";
 
-export default function LaborRequestPage() {
+export default function LaborRequestPage({ changePage }) {
     let savedToken = localStorage.getItem("token");
+    let decodedUser = jwtDecode(savedToken);
 
     const [current, setCurrent] = useState(0);
-    const [current2, setCurrent2] = useState(0);
     const [loadings, setLoadings] = useState([]);
     const [available, setAvailability] = useState(false);
 
     const onChangeSteps = (value) => {
         setCurrent(value);
-    };
-    const onChangeSteps2 = (value) => {
-        setCurrent2(value);
     };
 
     const [laborersAmount, setLaborersAmount] = useState(1);
@@ -78,13 +77,18 @@ export default function LaborRequestPage() {
     }
 
     const [requestInfoList, setRequestInfoList] = useState(0);
+    const [isGettingRequestInfoList, setIsGettingRequestInfoList] =
+        useState(true);
     async function getRequestInfoList() {
+        setIsGettingRequestInfoList(true);
         let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
             headers: {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
+        console.log(response.data);
         setRequestInfoList(response.data);
+        setIsGettingRequestInfoList(false);
     }
 
     const [selectedLocation, selectLocation] = useState({});
@@ -115,10 +119,47 @@ export default function LaborRequestPage() {
     }
 
     const [sendingRequest, isSendingRequest] = useState(false);
+    const [orderSuccessful, isOrderSuccessful] = useState(false);
     async function requestLabor() {
         isSendingRequest(true);
-        let token = localStorage.getItem("token");
-        let decodedUser = jwtDecode(token);
+
+        let requestMessage = document.getElementById("message").value;
+        let chosenDate = document.getElementById("dateChosen").value;
+        try {
+            let response = await axios.post(
+                `${API_BASE}/temp/requests/create-request`,
+                {
+                    costCenterId: selectedCostCenter.id,
+                    locationId: selectedLocation.id,
+                    firstDate: chosenDate,
+                    // secondDate: "",
+                    manPower: laborersAmount,
+                    requestedduration: duration,
+                    serviceTypeId: selectedService.id,
+                    serviceRequestMessage: requestMessage.toString().trim(),
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${savedToken}`,
+                    },
+                }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+                message.success(`Request Successfully Sent!`);
+                isOrderSuccessful(true);
+            }
+        } catch (e) {
+            message.error(`Failed to Send Request!`);
+        }
+        isSendingRequest(false);
+
+        // createdBy: decodedUser["email"],
+        //     updatedBy: decodedUser["email"],
+        //     locationName: locationName.toString().trim(),
+        //     passStatus: selectedPassStatus,
+
+        //   }
 
         // console.log(selectedCostCenter.id);
         // console.log(selectedLocation.id);
@@ -151,33 +192,33 @@ export default function LaborRequestPage() {
         //     "otRequestTime": "2024-06-06T00:31:24.256Z"
         //   }
 
-        let response = await axios.post(`${API_BASE}/Requests`, {
-            createdBy: decodedUser["email"],
-            updatedBy: decodedUser["email"],
-            id: 0,
-            costCenterId: selectedCostCenter.id,
-            locationId: selectedLocation.id,
-            firstDate: selectedDateAndHours.firstDate,
-            secondDate: selectedDateAndHours.secondDate,
-            manPower: laborersAmount,
-            requestedduration: duration,
-            serviceTypeId: selectedService.id,
-            jobStatus: 0,
-            oTduration: 0,
-            // email: decodedUser["email"],
-        });
-        if (response.status === 200 || response.status === 201) {
-            isSendingRequest(false);
+        // let response = await axios.post(`${API_BASE}/Requests`, {
+        //     createdBy: decodedUser["email"],
+        //     updatedBy: decodedUser["email"],
+        //     id: 0,
+        //     costCenterId: selectedCostCenter.id,
+        //     locationId: selectedLocation.id,
+        //     firstDate: selectedDateAndHours.firstDate,
+        //     secondDate: selectedDateAndHours.secondDate,
+        //     manPower: laborersAmount,
+        //     requestedduration: duration,
+        //     serviceTypeId: selectedService.id,
+        //     jobStatus: 0,
+        //     oTduration: 0,
+        //     // email: decodedUser["email"],
+        // });
+        // if (response.status === 200 || response.status === 201) {
+        //     isSendingRequest(false);
 
-            // setAvailability(true)
-            // setAddModalOpen(false);
-            // resetAllValues()
-        }
+        //     // setAvailability(true)
+        //     // setAddModalOpen(false);
+        //     // resetAllValues()
+        // }
     }
 
     function resetAllValues() {
         setCurrent(0);
-        setCurrent2(0);
+        // setCurrent2(0);
         setLoadings([]);
         setAvailability(false);
 
@@ -218,179 +259,62 @@ export default function LaborRequestPage() {
                     demands while maintaining flexibility to adapt to changing
                     circumstances. Simply following the steps below:
                 </div>
-
-                <Steps
-                    current={current}
-                    direction="vertical"
-                    onChange={onChangeSteps}
-                    items={[
-                        {
-                            title: (
-                                <div className="font-semibold text-base">
-                                    Step 1
-                                </div>
-                            ),
-                            description: (
-                                <div className="py-5">
-                                    <div className="pt-2 pb-3 pl-2 text-base font-semibold">
-                                        Select Date
-                                    </div>
-                                    <DatePicker id="dateChosen" />
-                                </div>
-                            ),
-                        },
-                        {
-                            title: (
-                                <div className="font-semibold text-base">
-                                    Step 2
-                                </div>
-                            ),
-                            description: (
-                                <div className="py-5">
-                                    <div className="pt-2 pb-2 pl-2 text-base font-semibold">
-                                        Select Amount Of Man Power
-                                    </div>
-                                    <Row>
-                                        <Col span={10}>
-                                            <Slider
-                                                min={1}
-                                                max={4}
-                                                onChange={onChange}
-                                                style={{
-                                                    marginLeft: "10px",
-                                                }}
-                                                value={
-                                                    typeof laborersAmount ===
-                                                    "number"
-                                                        ? laborersAmount
-                                                        : 0
-                                                }
-                                            />
-                                        </Col>
-                                        <Col span={4}>
-                                            <InputNumber
-                                                min={1}
-                                                max={100}
-                                                style={{
-                                                    margin: "0 5px",
-                                                }}
-                                                value={laborersAmount}
-                                                onChange={onChange}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </div>
-                            ),
-                        },
-                        {
-                            title: (
-                                <div className="font-semibold text-base">
-                                    Step 3
-                                </div>
-                            ),
-                            description: (
-                                <div className="py-5">
-                                    <div className="pt-2 pb-2 pl-2 text-base font-semibold">
-                                        Select Duration of Time
-                                    </div>
-                                    <Row>
-                                        <Col span={16}>
-                                            <Slider
-                                                min={1}
-                                                max={16}
-                                                onChange={onChangeDuration}
-                                                style={{
-                                                    marginLeft: "10px",
-                                                }}
-                                                value={
-                                                    typeof duration === "number"
-                                                        ? duration
-                                                        : 0
-                                                }
-                                            />
-                                        </Col>
-                                        <Col span={4}>
-                                            <InputNumber
-                                                min={1}
-                                                max={100}
-                                                style={{
-                                                    margin: "0 5px",
-                                                }}
-                                                value={duration}
-                                                onChange={onChangeDuration}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </div>
-                            ),
-                        },
-                        {
-                            title: (
-                                <div className="font-semibold text-base">
-                                    Step 4
-                                </div>
-                            ),
-                            description: (
-                                <div className="py-5">
-                                    {/* <div className="pt-2 pb-2 pl-2 text-base font-semibold"> Check Availability </div> */}
-                                    {available === true ? (
-                                        <p className="font-semibold text-green-700">
-                                            Labor and Schedule are Available!
-                                        </p>
-                                    ) : (
-                                        <div>
-                                            {tryAgain === true ? (
-                                                <p className="pb-5 text-red-500 font-semibold">
-                                                    Labor and Schedule are not
-                                                    available. <br /> Please try
-                                                    different schedule.
-                                                </p>
-                                            ) : (
-                                                <></>
-                                            )}
-                                            {checkingAvailability === true ? (
-                                                <div>
-                                                    <Spin
-                                                        indicator={
-                                                            <LoadingOutlined
-                                                                style={{
-                                                                    fontSize: 25,
-                                                                }}
-                                                                spin
-                                                            />
-                                                        }
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <Button
-                                                    type="primary"
-                                                    loading={loadings[0]}
-                                                    onClick={() =>
-                                                        checkAvailability()
-                                                    }
-                                                >
-                                                    Check Availability
-                                                </Button>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            ),
-                        },
-                    ]}
-                />
-
-                {available === true ? (
+                {isGettingRequestInfoList === true ? (
+                    <div>
+                        <Spin
+                            indicator={
+                                <LoadingOutlined
+                                    style={{
+                                        fontSize: 25,
+                                    }}
+                                    spin
+                                />
+                            }
+                        />
+                    </div>
+                ) : orderSuccessful === true ? (
+                    <Result
+                        status="success"
+                        title="Successfully Sent a Labor Request."
+                        subTitle="Your request has reached the admins, please wait for a few minutes until your request is processed."
+                        extra={[
+                            <Button
+                                type="primary"
+                                key="console"
+                                onClick={(e) => isOrderSuccessful(false)}
+                            >
+                                Order Again
+                            </Button>,
+                            <Button key="buy" onClick={(e) => changePage(1)}>
+                                View Order History
+                            </Button>,
+                        ]}
+                    />
+                ) : (
                     <Steps
-                        current={current2}
-                        initial={4}
+                        current={current}
                         direction="vertical"
-                        onChange={onChangeSteps2}
+                        onChange={onChangeSteps}
                         items={[
                             {
                                 title: (
                                     <div className="font-semibold text-base">
-                                        Step 5
+                                        Step 1
+                                    </div>
+                                ),
+                                description: (
+                                    <div className="py-5">
+                                        <div className="pt-2 pb-3 pl-2 text-base font-semibold">
+                                            Select Date
+                                        </div>
+                                        <DatePicker id="dateChosen" />
+                                    </div>
+                                ),
+                            },
+                            {
+                                title: (
+                                    <div className="font-semibold text-base">
+                                        Step 2
                                     </div>
                                 ),
                                 description: (
@@ -425,7 +349,7 @@ export default function LaborRequestPage() {
                             {
                                 title: (
                                     <div className="font-semibold text-base">
-                                        Step 6
+                                        Step 3
                                     </div>
                                 ),
                                 description: (
@@ -460,9 +384,10 @@ export default function LaborRequestPage() {
                             {
                                 title: (
                                     <div className="font-semibold text-base">
-                                        Step 7
+                                        Step 4
                                     </div>
                                 ),
+
                                 description: (
                                     <div className="py-5">
                                         <div className="pt-2 pb-2 pl-2 text-base font-semibold">
@@ -485,6 +410,115 @@ export default function LaborRequestPage() {
                                                 }
                                             )}
                                         </select>
+                                    </div>
+                                ),
+                            },
+                            {
+                                title: (
+                                    <div className="font-semibold text-base">
+                                        Step 5
+                                    </div>
+                                ),
+                                description: (
+                                    <div className="py-5">
+                                        <div className="pt-2 pb-2 pl-2 text-base font-semibold">
+                                            Select Amount Of Man Power
+                                        </div>
+                                        <Row>
+                                            <Col span={10}>
+                                                <Slider
+                                                    min={1}
+                                                    max={4}
+                                                    onChange={onChange}
+                                                    style={{
+                                                        marginLeft: "10px",
+                                                    }}
+                                                    value={
+                                                        typeof laborersAmount ===
+                                                        "number"
+                                                            ? laborersAmount
+                                                            : 0
+                                                    }
+                                                />
+                                            </Col>
+                                            <Col span={4}>
+                                                <InputNumber
+                                                    min={1}
+                                                    max={100}
+                                                    style={{
+                                                        margin: "0 5px",
+                                                    }}
+                                                    value={laborersAmount}
+                                                    onChange={onChange}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </div>
+                                ),
+                            },
+                            {
+                                title: (
+                                    <div className="font-semibold text-base">
+                                        Step 6
+                                    </div>
+                                ),
+                                description: (
+                                    <div className="py-5">
+                                        <div className="pt-2 pb-2 pl-2 text-base font-semibold">
+                                            Select Duration of Time
+                                        </div>
+                                        <Row>
+                                            <Col span={16}>
+                                                <Slider
+                                                    min={1}
+                                                    max={16}
+                                                    onChange={onChangeDuration}
+                                                    style={{
+                                                        marginLeft: "10px",
+                                                    }}
+                                                    value={
+                                                        typeof duration ===
+                                                        "number"
+                                                            ? duration
+                                                            : 0
+                                                    }
+                                                />
+                                            </Col>
+                                            <Col span={4}>
+                                                <InputNumber
+                                                    min={1}
+                                                    max={100}
+                                                    style={{
+                                                        margin: "0 5px",
+                                                    }}
+                                                    value={duration}
+                                                    onChange={onChangeDuration}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </div>
+                                ),
+                            },
+                            {
+                                title: (
+                                    <div className="font-semibold text-base">
+                                        Step 7
+                                    </div>
+                                ),
+                                description: (
+                                    <div className="py-5">
+                                        <div className="pt-2 pb-2 pl-2 text-base font-semibold">
+                                            Explain Your Request In Detail
+                                        </div>
+                                        <div className="pl-2 pt-2">
+                                            <textarea
+                                                id="message"
+                                                className="bg-white text-black border rounded-lg outline-none px-4 py-2"
+                                                placeholder="message..."
+                                                rows={5}
+                                                cols={90}
+                                            ></textarea>
+                                        </div>
                                     </div>
                                 ),
                             },
@@ -522,9 +556,21 @@ export default function LaborRequestPage() {
                             },
                         ]}
                     />
+                )}
+
+                {/* {available === true ? (
+                    <Steps
+                        current={current2}
+                        initial={4}
+                        direction="vertical"
+                        onChange={onChangeSteps2}
+                        items={[
+                            
+                        ]}
+                    />
                 ) : (
                     <div></div>
-                )}
+                )} */}
             </div>
         </div>
     );
