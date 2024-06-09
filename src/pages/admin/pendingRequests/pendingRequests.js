@@ -49,6 +49,7 @@ export default function PendingRequests() {
             }
         );
         setPendingRequests(response.data);
+        console.log(response.data);
     }
 
     const [currentRequestID, setRequestID] = useState(0);
@@ -89,7 +90,23 @@ export default function PendingRequests() {
         }
     }
 
-    async function checkAvailableDate() {}
+    async function checkAvailableDate(record) {
+        let response = await axios.post(
+            `${API_BASE}/temp/requests/check-laborers-availability`,
+            {
+                requiredManPower: record.manPower,
+                date: record.firstDate,
+                duration: record.requestedduration,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        // setPendingRequests(response.data);
+        console.log(response.data);
+    }
 
     const onChange = (key) => {
         console.log(key);
@@ -526,15 +543,8 @@ export default function PendingRequests() {
                                             />
                                             <Column
                                                 title="Date"
-                                                dataIndex="createdAt"
-                                                key="createdAt"
-                                                render={(_, record) => {
-                                                    <p>
-                                                        {moment(
-                                                            record.createdAt
-                                                        ).format()}
-                                                    </p>;
-                                                }}
+                                                dataIndex="firstDate"
+                                                key="firstDate"
                                             />
                                             {/* <Column
                                                 title="Second Date"
@@ -608,19 +618,30 @@ export default function PendingRequests() {
                                                 key="action"
                                                 render={(_, record) => (
                                                     <Space size="middle">
-                                                        <Button type="primary">
-                                                            Approve
-                                                        </Button>
-                                                        <Button
-                                                            danger
-                                                            onClick={(e) =>
-                                                                openRejectModal(
-                                                                    record
-                                                                )
-                                                            }
-                                                        >
-                                                            Reject
-                                                        </Button>
+                                                        {record.isApproved ===
+                                                        false ? (
+                                                            <Button
+                                                                type="primary"
+                                                                onClick={(e) =>
+                                                                    checkAvailableDate(
+                                                                        record
+                                                                    )
+                                                                }
+                                                            >
+                                                                Approve
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                danger
+                                                                onClick={(e) =>
+                                                                    openRejectModal(
+                                                                        record
+                                                                    )
+                                                                }
+                                                            >
+                                                                Reject
+                                                            </Button>
+                                                        )}
                                                     </Space>
                                                 )}
                                             />

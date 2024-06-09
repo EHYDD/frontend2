@@ -95,6 +95,8 @@ export default function LaborerManagementPage() {
         let editFirstName = document.getElementById("editFirstName").value;
         let editLastName = document.getElementById("editLastName").value;
 
+        // console.log("editRFIDDNew")
+
         let response = await axios.put(
             `${API_BASE}/Laborers/${editID}`,
             {
@@ -102,7 +104,7 @@ export default function LaborerManagementPage() {
                 firstName: editFirstName.toString().trim(),
                 lastName: editLastName.toString().trim(),
                 employeeID: parseInt(editEmployeeIDNew.toString().trim()),
-                rfid: parseInt(editRFIDDNew.toString().trim()),
+                qrCode: parseInt(editRFIDDNew.toString().trim()),
                 status: 1,
                 laborerStatus: 1,
             },
@@ -338,11 +340,11 @@ export default function LaborerManagementPage() {
                             }}
                         />
                         <Column
-                            title="RFID"
-                            dataIndex="rfid"
-                            key="rfid"
+                            title="QR Code"
+                            dataIndex="qrCode"
+                            key="qrCode"
                             render={(_, record) => {
-                                return <Tag color="cyan">{record.rfid}</Tag>;
+                                return <Tag color="cyan">{record.qrCode}</Tag>;
                             }}
                         />
                         <Column

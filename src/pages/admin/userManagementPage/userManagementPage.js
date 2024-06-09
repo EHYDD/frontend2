@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { message, Modal, Spin } from "antd";
+import { message, Modal, Spin, Tag } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { API_BASE } from "../../../config/config";
@@ -112,10 +112,12 @@ export default function UserManagementPage() {
                             defaultSortOrder={"descend"}
                             sorter={(a, b) => a.userId - b.userId}
                         /> */}
+
                         <Column
                             title="Authority Level"
                             dataIndex="authorityLevel"
                             key="date"
+                            width={200}
                             onFilter={(value, record) =>
                                 record.authorityLevel.indexOf(value) === 0
                             }
@@ -123,9 +125,35 @@ export default function UserManagementPage() {
                                 a.authorityLevel - b.authorityLevel
                             }
                             defaultSortOrder={"descend"}
+                            render={(_, record) => {
+                                return record.authorityLevel > 5 ? (
+                                    <Tag color="purple">
+                                        VP — {record.authorityLevel}
+                                    </Tag>
+                                ) : record.authorityLevel > 3 ? (
+                                    <Tag color="cyan">
+                                        User — {record.authorityLevel}
+                                    </Tag>
+                                ) : (
+                                    <Tag color="red">
+                                        Unknown — {record.authorityLevel}
+                                    </Tag>
+                                );
+                            }}
                         />
-                        {/* <Column title="Status" dataIndex="status" key="date" /> */}
                         <Column title="Email" dataIndex="email" key="date" />
+                        <Column
+                            title="Status"
+                            dataIndex="status"
+                            key="date"
+                            render={(_, record) => {
+                                return record.status === 1 ? (
+                                    <Tag color="green">Unblocked</Tag>
+                                ) : (
+                                    <Tag color="red">Blocked</Tag>
+                                );
+                            }}
+                        />
 
                         <Column
                             title="Action"

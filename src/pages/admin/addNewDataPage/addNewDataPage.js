@@ -21,20 +21,36 @@ export default function AddNewDataPage() {
     const [serviceTypeList, setServiceTypeList] = useState([]);
 
     async function getLocations() {
-        let response = await axios.get(`${API_BASE}/Location`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
+        let response = await axios.get(
+            `${API_BASE}/Location`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             },
-        });
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         setLocationList(response.data);
     }
 
     async function getCostCenters() {
-        let response = await axios.get(`${API_BASE}/CostCenter`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
+        let response = await axios.get(
+            `${API_BASE}/CostCenter`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             },
-        });
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         setCostCenterList(response.data);
     }
 
@@ -81,31 +97,55 @@ export default function AddNewDataPage() {
     }
 
     async function deleteLocation() {
-        await axios.delete(`${API_BASE}/Location/${itemID}`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
+        await axios.delete(
+            `${API_BASE}/Location/${itemID}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             },
-        });
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         message.success(`Location Deleted Successfully`);
         getLocations();
         setModal2Open(false);
     }
     async function deleteCostCenter() {
-        await axios.delete(`${API_BASE}/CostCenter/${itemID}`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
+        await axios.delete(
+            `${API_BASE}/CostCenter/${itemID}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             },
-        });
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         message.success(`Cost Center Deleted Successfully`);
         getCostCenters();
         setModal2Open(false);
     }
     async function deleteServiceType() {
-        await axios.delete(`${API_BASE}/ServiceType/${itemID}`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
+        await axios.delete(
+            `${API_BASE}/ServiceType/${itemID}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             },
-        });
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         message.success(`Service Deleted Successfully`);
         getServiceType();
         setModal2Open(false);
@@ -224,12 +264,20 @@ export default function AddNewDataPage() {
         let locationName = document.getElementById("locationName").value;
         let token = localStorage.getItem("token");
         let decodedUser = jwtDecode(token);
-        let response = await axios.post(`${API_BASE}/Location`, {
-            createdBy: decodedUser["email"],
-            updatedBy: decodedUser["email"],
-            locationName: locationName.toString().trim(),
-            passStatus: selectedPassStatus,
-        });
+        let response = await axios.post(
+            `${API_BASE}/Location`,
+            {
+                createdBy: decodedUser["email"],
+                updatedBy: decodedUser["email"],
+                locationName: locationName.toString().trim(),
+                passStatus: selectedPassStatus,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         if (response.status === 200 || response.status === 201) {
             message.success(`Location Added Successfully`);
             getLocations();
@@ -242,11 +290,19 @@ export default function AddNewDataPage() {
             document.getElementById("costCenterNumber").value;
         let token = localStorage.getItem("token");
         let decodedUser = jwtDecode(token);
-        let response = await axios.post(`${API_BASE}/CostCenter`, {
-            createdBy: decodedUser["email"],
-            updatedBy: decodedUser["email"],
-            costCenterNumber: costCenterNumber.toString().trim(),
-        });
+        let response = await axios.post(
+            `${API_BASE}/CostCenter`,
+            {
+                createdBy: decodedUser["email"],
+                updatedBy: decodedUser["email"],
+                costCenterNumber: costCenterNumber.toString().trim(),
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         if (response.status === 200 || response.status === 201) {
             message.success(`Cost Center added Successfully`);
             getCostCenters();
@@ -260,13 +316,21 @@ export default function AddNewDataPage() {
         let otRate = document.getElementById("otRate").value;
         let token = localStorage.getItem("token");
         let decodedUser = jwtDecode(token);
-        let response = await axios.post(`${API_BASE}/ServiceType`, {
-            createdBy: decodedUser["email"],
-            updatedBy: decodedUser["email"],
-            title: title.toString().trim(),
-            paymentRate: paymentRate.toString().trim(),
-            otRate: otRate.toString().trim(),
-        });
+        let response = await axios.post(
+            `${API_BASE}/ServiceType`,
+            {
+                createdBy: decodedUser["email"],
+                updatedBy: decodedUser["email"],
+                title: title.toString().trim(),
+                paymentRate: paymentRate.toString().trim(),
+                otRate: otRate.toString().trim(),
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         if (response.status === 200 || response.status === 201) {
             message.success(`Service Type added Successfully`);
             getServiceType();
@@ -398,6 +462,11 @@ export default function AddNewDataPage() {
                 locationName: editLocationName.toString().trim(),
                 passStatus: parseInt(editPassStatus.toString().trim()),
                 id: parseInt(editLocationID.toString().trim()),
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             }
         );
         if (response.status === 200 || response.status === 201) {
@@ -420,6 +489,11 @@ export default function AddNewDataPage() {
                 updatedBy: decodedUser["email"],
                 costCenterNumber: editCostCenterNumber.toString().trim(),
                 id: parseInt(editCostCenterID.toString().trim()),
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             }
         );
         if (response.status === 200 || response.status === 201) {
@@ -449,6 +523,11 @@ export default function AddNewDataPage() {
                 paymentRate: parseInt(editPaymentRate.toString().trim()),
                 otRate: parseInt(editOTRate.toString().trim()),
                 status: parseInt(editServiceStatus.toString().trim()),
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             }
         );
         if (response.status === 200 || response.status === 201) {
