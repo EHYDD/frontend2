@@ -73,8 +73,8 @@ export default function PendingRequests() {
             {
                 id: currentRequestID,
                 status: false,
-                start: "",
-                end: "",
+                start: "2024-06-09T15:33:11.331Z",
+                end: "2024-06-09T15:33:11.331Z",
             },
             {
                 headers: {
@@ -85,10 +85,11 @@ export default function PendingRequests() {
         if (response.status === 200 || response.status === 201) {
             getPendingRequests();
             setIsRejecting(false);
-
             setModal2Open(false);
         }
     }
+
+    async function checkAvailableDate() {}
 
     const onChange = (key) => {
         console.log(key);
