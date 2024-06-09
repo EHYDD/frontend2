@@ -6,6 +6,7 @@ import {
     PersonStandingIcon,
     Plus,
     Sparkle,
+    User,
     UserSearch,
 } from "lucide-react";
 
@@ -53,13 +54,13 @@ export default function AdminDashboard() {
                                 isSelected={currentPage === 0 ? true : false}
                             />
                         </div>
-                        <div onClick={(e) => changePage(1)}>
+                        {/* <div onClick={(e) => changePage(1)}>
                             <SidePanelButton
                                 icon={<Sparkle />}
                                 title="Priority Requests"
                                 isSelected={currentPage === 1 ? true : false}
                             />
-                        </div>
+                        </div> */}
                         <div onClick={(e) => changePage(2)}>
                             <SidePanelButton
                                 icon={<CirclePlus />}
@@ -76,7 +77,7 @@ export default function AdminDashboard() {
                         </div>
                         <div onClick={(e) => changePage(4)}>
                             <SidePanelButton
-                                icon={<UserSearch />}
+                                icon={<User />}
                                 title="User Management"
                                 isSelected={currentPage === 4 ? true : false}
                             />
@@ -88,18 +89,18 @@ export default function AdminDashboard() {
                                 isSelected={currentPage === 5 ? true : false}
                             />
                         </div>
-                        <div onClick={(e) => changePage(6)}>
-                            <SidePanelButton
-                                icon={<Plus />}
-                                title="Add New Data"
-                                isSelected={currentPage === 6 ? true : false}
-                            />
-                        </div>
                         <div onClick={(e) => changePage(7)}>
                             <SidePanelButton
                                 icon={<PersonStandingIcon />}
                                 title="Attendance"
                                 isSelected={currentPage === 7 ? true : false}
+                            />
+                        </div>
+                        <div onClick={(e) => changePage(6)}>
+                            <SidePanelButton
+                                icon={<Plus />}
+                                title="Add New Data"
+                                isSelected={currentPage === 6 ? true : false}
                             />
                         </div>
                     </div>

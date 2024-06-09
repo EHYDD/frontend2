@@ -8,129 +8,108 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { Button, message, Modal, Space, Spin, Table, Tag } from "antd";
 
 let costcenterVsManpower = [];
+let requestInfoList = [];
+let locationVsRequests = [];
+let serviceTypeVsRequests = [];
 export default function AnalyticsPage() {
-    const chartSetting = {
-        xAxis: [
-            {
-                label: "rainfall (mm)",
-            },
-        ],
-        width: 500,
-        height: 400,
-    };
-    const dataset = [
-        {
-            london: 59,
-            paris: 57,
-            newYork: 86,
-            seoul: 21,
-            month: "Jan",
-        },
-        {
-            london: 50,
-            paris: 52,
-            newYork: 78,
-            seoul: 28,
-            month: "Fev",
-        },
-        {
-            london: 47,
-            paris: 53,
-            newYork: 106,
-            seoul: 41,
-            month: "Mar",
-        },
-        {
-            london: 54,
-            paris: 56,
-            newYork: 92,
-            seoul: 73,
-            month: "Apr",
-        },
-        {
-            london: 57,
-            paris: 69,
-            newYork: 92,
-            seoul: 99,
-            month: "May",
-        },
-        {
-            london: 60,
-            paris: 63,
-            newYork: 103,
-            seoul: 144,
-            month: "June",
-        },
-        {
-            london: 59,
-            paris: 60,
-            newYork: 105,
-            seoul: 319,
-            month: "July",
-        },
-        {
-            london: 65,
-            paris: 60,
-            newYork: 106,
-            seoul: 249,
-            month: "Aug",
-        },
-        {
-            london: 51,
-            paris: 51,
-            newYork: 95,
-            seoul: 131,
-            month: "Sept",
-        },
-        {
-            london: 60,
-            paris: 65,
-            newYork: 97,
-            seoul: 55,
-            month: "Oct",
-        },
-        {
-            london: 67,
-            paris: 64,
-            newYork: 76,
-            seoul: 48,
-            month: "Nov",
-        },
-        {
-            london: 61,
-            paris: 70,
-            newYork: 103,
-            seoul: 25,
-            month: "Dec",
-        },
-    ];
+    let savedToken = localStorage.getItem("token");
+
     const formatter = (value) => <CountUp end={value} separator="," />;
+    //   const valueFormatter = (value: number | null) => `${value}mm`;
 
     const [isLoading, setIsLoading] = useState(true);
     const [analytics, setAnalytics] = useState({});
     async function getAnalytics() {
         let response = await axios.get(`${API_BASE}/Analytics`);
-        console.log(response.data);
         setAnalytics(response.data);
-        costcenterVsManpower = [];
+
+        let costcenterVsManpowerUnfiltered = [];
         for (var i of response.data["costcenterVsManpower"]) {
-            costcenterVsManpower.push({
+            costcenterVsManpowerUnfiltered.push({
                 id: i["costCenterId"],
                 value: i["totalManPower"],
                 label: i["costCenterId"].toString(),
             });
         }
-        console.log(costcenterVsManpower);
+
+        costcenterVsManpower = [];
+        for (var j of costcenterVsManpowerUnfiltered) {
+            for (var k of requestInfoList["costCenters"]) {
+                if (j["id"] === k["id"]) {
+                    costcenterVsManpower.push({
+                        id: j["id"],
+                        value: j["value"],
+                        label: k["callCenterNumber"].toString(),
+                    });
+                }
+            }
+        }
+
+        let locationVsRequestsUnfiltered = [];
+        for (var l of response.data["requestVsLocation"]) {
+            locationVsRequestsUnfiltered.push({
+                id: l["locationId"],
+                value: l["value"],
+                label: l["locationId"].toString(),
+            });
+        }
+
+        locationVsRequests = [];
+        for (var m of locationVsRequestsUnfiltered) {
+            for (var n of requestInfoList["location"]) {
+                if (m["id"] === n["id"]) {
+                    locationVsRequests.push({
+                        id: m["id"],
+                        value: m["value"],
+                        label: n["locationName"].toString(),
+                    });
+                }
+            }
+        }
+
+        let serviceTypeVsRequestsUnfiltered = [];
+        for (var p of response.data["requestVsServiceType"]) {
+            serviceTypeVsRequestsUnfiltered.push({
+                id: p["serviceType"],
+                value: p["value"],
+                label: p["serviceType"].toString(),
+            });
+        }
+        serviceTypeVsRequests = [];
+        for (var q of serviceTypeVsRequestsUnfiltered) {
+            for (var r of requestInfoList["serviceType"]) {
+                if (q["id"] === r["id"]) {
+                    serviceTypeVsRequests.push({
+                        id: q["id"],
+                        value: q["value"],
+                        label: r["title"].toString(),
+                    });
+                }
+            }
+        }
 
         if (response.status === 200 || response.status === 201) {
             setIsLoading(false);
         }
     }
-    useEffect(() => {
+
+    // const [requestInfoList, setRequestInfoList] = useState(0);
+    async function getRequestInfoList() {
+        setIsLoading(true);
+        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
+            },
+        });
+        // setRequestInfoList(response.data);
+        requestInfoList = response.data;
         getAnalytics();
+    }
+
+    useEffect(() => {
+        getRequestInfoList();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-    //   const valueFormatter = (value: number | null) => `${value}mm`;
     return (
         <div className="p-10">
             <div className="font-semibold text-lg pb-10"> Analytics </div>
@@ -180,7 +159,7 @@ export default function AnalyticsPage() {
                             className="border border-zinc-300 text-center px-14 py-5 shadow-lg hover:shadow-xl rounded-xl"
                         />
                         <Statistic
-                            title="Service Type"
+                            title="Service Types"
                             value={analytics["serviceType"]}
                             precision={2}
                             formatter={formatter}
@@ -207,6 +186,7 @@ export default function AnalyticsPage() {
                             />
                         </div>
 
+                        {/* COST CENTER vs MAN POWER */}
                         <div className="flex flex-col justify-center pb-10 w-fit">
                             <div className="text-center pb-5 text-base">
                                 Cost Center vs Man Power
@@ -215,69 +195,70 @@ export default function AnalyticsPage() {
                                 series={[
                                     {
                                         data: costcenterVsManpower,
-
-                                        // [
-                                        //     {
-                                        //         id: 0,
-                                        //         value: 10,
-                                        //         label: "series A",
-                                        //     },
-                                        //     {
-                                        //         id: 1,
-                                        //         value: 15,
-                                        //         label: "series B",
-                                        //     },
-                                        //     {
-                                        //         id: 2,
-                                        //         value: 20,
-                                        //         label: "series C",
-                                        //     },
-                                        // ],
+                                        innerRadius: 30,
+                                        outerRadius: 100,
+                                        paddingAngle: 5,
+                                        cornerRadius: 5,
+                                        startAngle: 0,
+                                        endAngle: 360,
                                     },
                                 ]}
                                 width={400}
                                 height={200}
                             />
                         </div>
+
+                        {/* SERVICE TYPE vs REQUESTS */}
                         <div className="flex flex-col justify-center pb-10 w-fit pl-20">
                             <div className="text-center pb-5 text-base">
-                                Location vs Requests
+                                Service Type vs Requests
                             </div>
-                            <BarChart
-                                dataset={dataset}
-                                yAxis={[
-                                    { scaleType: "band", dataKey: "month" },
-                                ]}
+                            <PieChart
                                 series={[
                                     {
-                                        dataKey: "seoul",
-                                        label: "Seoul rainfall",
+                                        data: serviceTypeVsRequests,
+                                        innerRadius: 30,
+                                        outerRadius: 100,
+                                        paddingAngle: 5,
+                                        cornerRadius: 5,
+                                        startAngle: 0,
+                                        endAngle: 360,
                                     },
                                 ]}
-                                layout="horizontal"
-                                grid={{ vertical: true }}
-                                {...chartSetting}
-                                // colors={["navy"]}
+                                width={400}
+                                height={200}
                             />
                         </div>
+
+                        {/* Location vs Requests */}
                         <div className="flex flex-col justify-center pb-10 w-fit">
                             <div className="text-center pb-5 text-base">
                                 Location vs Requests
                             </div>
                             <BarChart
-                                xAxis={[
-                                    {
-                                        scaleType: "band",
-                                        data: ["group A", "group B", "group C"],
-                                    },
+                                dataset={locationVsRequests}
+                                margin={{
+                                    left: 100,
+                                    right: 40,
+                                    top: 60,
+                                    bottom: 60,
+                                }}
+                                yAxis={[
+                                    { scaleType: "band", dataKey: "label" },
                                 ]}
                                 series={[
-                                    { data: [4, 3, 5] },
-                                    { data: [1, 6, 3] },
-                                    { data: [2, 5, 6] },
+                                    {
+                                        dataKey: "value",
+                                        label: "Number of Requests",
+                                    },
                                 ]}
-                                width={500}
-                                height={300}
+                                layout="horizontal"
+                                grid={{ vertical: true }}
+                                {...{
+                                    width: 480,
+                                    height: 400,
+                                }}
+                                // colors={["navy"]}
                             />
                         </div>
                     </div>

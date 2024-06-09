@@ -14,6 +14,8 @@ import {
     DatePicker,
     message,
     Result,
+    Popconfirm,
+    Modal,
 } from "antd";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -27,6 +29,7 @@ export default function LaborRequestPage({ changePage }) {
     const [current, setCurrent] = useState(0);
     const [loadings, setLoadings] = useState([]);
     const [available, setAvailability] = useState(false);
+    const [modal2Open, setModal2Open] = useState(false);
 
     const onChangeSteps = (value) => {
         setCurrent(value);
@@ -122,9 +125,20 @@ export default function LaborRequestPage({ changePage }) {
     const [orderSuccessful, isOrderSuccessful] = useState(false);
     async function requestLabor() {
         isSendingRequest(true);
+        setModal2Open(false);
 
         let requestMessage = document.getElementById("message").value;
         let chosenDate = document.getElementById("dateChosen").value;
+        console.log({
+            costCenterId: selectedCostCenter.id,
+            locationId: selectedLocation.id,
+            firstDate: chosenDate,
+            // secondDate: "",
+            manPower: laborersAmount,
+            requestedduration: duration,
+            serviceTypeId: selectedService.id,
+            serviceRequestMessage: requestMessage.toString().trim(),
+        });
         try {
             let response = await axios.post(
                 `${API_BASE}/temp/requests/create-request`,
@@ -153,82 +167,6 @@ export default function LaborRequestPage({ changePage }) {
             message.error(`Failed to Send Request!`);
         }
         isSendingRequest(false);
-
-        // createdBy: decodedUser["email"],
-        //     updatedBy: decodedUser["email"],
-        //     locationName: locationName.toString().trim(),
-        //     passStatus: selectedPassStatus,
-
-        //   }
-
-        // console.log(selectedCostCenter.id);
-        // console.log(selectedLocation.id);
-        // console.log(selectedService.id);
-
-        // console.log(selectedDateAndHours.firstDate);
-        // console.log(selectedDateAndHours.secondDate);
-
-        // console.log(duration);
-        // console.log(laborersAmount);
-
-        // {
-        //     "createdAt": "2024-06-06T00:31:24.256Z",
-        //     "updatedAt": "2024-06-06T00:31:24.256Z",
-
-        //     "createdBy": "string",
-        //     "updatedBy": "string",
-
-        //     "id": 0,
-        //     "costCenterId": 0,
-        //     "locationId": 0,
-        //     "firstDate": "2024-06-06",
-        //     "secondDate": "2024-06-06",
-        //     "manPower": 0,
-        //     "requestedduration": 0,
-        //     "serviceTypeId": 0,
-        //     "jobStatus": 0,
-        //     "oTduration": 0,
-
-        //     "otRequestTime": "2024-06-06T00:31:24.256Z"
-        //   }
-
-        // let response = await axios.post(`${API_BASE}/Requests`, {
-        //     createdBy: decodedUser["email"],
-        //     updatedBy: decodedUser["email"],
-        //     id: 0,
-        //     costCenterId: selectedCostCenter.id,
-        //     locationId: selectedLocation.id,
-        //     firstDate: selectedDateAndHours.firstDate,
-        //     secondDate: selectedDateAndHours.secondDate,
-        //     manPower: laborersAmount,
-        //     requestedduration: duration,
-        //     serviceTypeId: selectedService.id,
-        //     jobStatus: 0,
-        //     oTduration: 0,
-        //     // email: decodedUser["email"],
-        // });
-        // if (response.status === 200 || response.status === 201) {
-        //     isSendingRequest(false);
-
-        //     // setAvailability(true)
-        //     // setAddModalOpen(false);
-        //     // resetAllValues()
-        // }
-    }
-
-    function resetAllValues() {
-        setCurrent(0);
-        // setCurrent2(0);
-        setLoadings([]);
-        setAvailability(false);
-
-        // const [laborersAmount, setLaborersAmount] = useState(1);
-        // const [duration, setDuration] = useState(1);
-        // const [tryAgain, setTryAgain] = useState(false);
-        // const [selectedDateAndHours, setDateAndHours] = useState({});
-        // const [requestInfoList, setRequestInfoList] = useState(0);
-        // const [selectedLocation, selectLocation] = useState({});
-        // const [selectedService, selectService] = useState({});
     }
 
     useEffect(() => {
@@ -522,6 +460,7 @@ export default function LaborRequestPage({ changePage }) {
                                     </div>
                                 ),
                             },
+
                             {
                                 title: (
                                     <div className="font-semibold text-base">
@@ -546,7 +485,9 @@ export default function LaborRequestPage({ changePage }) {
                                         ) : (
                                             <Button
                                                 type="primary"
-                                                onClick={() => requestLabor()}
+                                                onClick={() =>
+                                                    setModal2Open(true)
+                                                }
                                             >
                                                 Request Labor
                                             </Button>
@@ -557,21 +498,29 @@ export default function LaborRequestPage({ changePage }) {
                         ]}
                     />
                 )}
-
-                {/* {available === true ? (
-                    <Steps
-                        current={current2}
-                        initial={4}
-                        direction="vertical"
-                        onChange={onChangeSteps2}
-                        items={[
-                            
-                        ]}
-                    />
-                ) : (
-                    <div></div>
-                )} */}
             </div>
+
+            <Modal
+                title={`Agree to Terms of Service`}
+                centered
+                open={modal2Open}
+                onCancel={() => setModal2Open(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <div className="flex gap-3 justify-end">
+                        <Button type="primary" onClick={() => requestLabor()}>
+                            Request Labor
+                        </Button>
+
+                        <CancelBtn />
+                        {/* <OkBtn /> */}
+                    </div>
+                )}
+            >
+                <p>
+                    By requesting labor you're agreeing to the rules of use and
+                    terms of services of Ethiopian Airlines. Proceed?
+                </p>
+            </Modal>
         </div>
     );
 }

@@ -105,8 +105,13 @@ export default function UserManagementPage() {
             ) : (
                 <div>
                     <Table dataSource={userList}>
-                        <Column title="UserID" dataIndex="userId" key="user" />
-                        <Column title="Email" dataIndex="email" key="date" />
+                        {/* <Column
+                            title="UserID"
+                            dataIndex="userId"
+                            key="user"
+                            defaultSortOrder={"descend"}
+                            sorter={(a, b) => a.userId - b.userId}
+                        /> */}
                         <Column
                             title="Authority Level"
                             dataIndex="authorityLevel"
@@ -114,12 +119,13 @@ export default function UserManagementPage() {
                             onFilter={(value, record) =>
                                 record.authorityLevel.indexOf(value) === 0
                             }
-                            // defaultSortOrder={"descend"}
                             sorter={(a, b) =>
                                 a.authorityLevel - b.authorityLevel
                             }
+                            defaultSortOrder={"descend"}
                         />
-                        <Column title="Status" dataIndex="status" key="date" />
+                        {/* <Column title="Status" dataIndex="status" key="date" /> */}
+                        <Column title="Email" dataIndex="email" key="date" />
 
                         <Column
                             title="Action"
@@ -194,6 +200,7 @@ export default function UserManagementPage() {
                                         <LoadingOutlined
                                             style={{
                                                 fontSize: 25,
+                                                color: "red",
                                             }}
                                             spin
                                         />
