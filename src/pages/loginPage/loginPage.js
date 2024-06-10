@@ -30,6 +30,7 @@ export default function LoginPage() {
                 email: email.toString().trim(),
                 password: password.toString().trim(),
             });
+            console.log(response.data);
 
             if (response.status === 200 || response.status === 201) {
                 setIsLoggingIn(false);
@@ -55,12 +56,12 @@ export default function LoginPage() {
                 }
             } else {
                 setLoginError(true);
-                message.error("Incorrect Username or Password.");
+                message.error(`${response.data}`);
                 setIsLoggingIn(false);
             }
         } catch (e) {
             setIsLoggingIn(false);
-            message.error("Incorrect Username or Password.");
+            message.error(`Incorrect Username or Password. or \n ${e}`);
         }
     }
 
@@ -174,7 +175,7 @@ export default function LoginPage() {
             }
         } catch (error) {
             message.error(
-                "Couldn't submmit appeal. Either you're not block or your account doesn't exist."
+                `Couldn't submmit appeal. Either you're not block or your account doesn't exist. \n Error: ${error}`
             );
         }
         setApprovalModal2Open(false);

@@ -1,6 +1,5 @@
 import {
     Button,
-    ConfigProvider,
     message,
     Modal,
     Popover,
@@ -9,6 +8,7 @@ import {
     Table,
     Tabs,
     Tag,
+    Transfer,
 } from "antd";
 import Column from "antd/es/table/Column";
 import axios from "axios";
@@ -50,6 +50,7 @@ export default function PendingRequests() {
         );
         setTodaysRequests(response.data);
         setLoading(false);
+        console.log(response.data);
     }
 
     const [pendingRequests, setPendingRequests] = useState([]);
@@ -196,7 +197,10 @@ export default function PendingRequests() {
         setApprovalModal2Open(false);
     }
 
+    const [laborersData, setLaborersData] = useState([]);
+    const [laborersTableData, setLaborersTableData] = useState([]);
     async function checkAvailableLaborers() {
+        setLaborersData([]);
         let response = await axios.get(
             `${API_BASE}/temp/requests/get-available-laborers-today`,
             {
@@ -205,7 +209,121 @@ export default function PendingRequests() {
                 },
             }
         );
-        console.log(response.data);
+        // console.log(response.data);
+        setLaborersData(response.data);
+
+        let targetKeysTemp = [];
+        for (var i of response.data) {
+            targetKeysTemp.push(i["employeeID"]);
+        }
+        setTargetKeys(targetKeysTemp);
+
+        let laborersDataTable = [];
+        for (var j of response.data) {
+            laborersDataTable.push({
+                key: j["employeeID"],
+                employeeID: j["employeeID"],
+                firstName: j["firstName"],
+                id: j["id"],
+                laborerStatus: j["laborerStatus"],
+                lastName: j["lastName"],
+                qrCode: j["qrCode"],
+                status: j["status"],
+            });
+        }
+        console.log(laborersDataTable);
+        setLaborersTableData(laborersDataTable);
+    }
+
+    // const [mockData, setMockData] = useState([]);
+    const [targetKeys, setTargetKeys] = useState([]);
+    const getMock = () => {
+        const tempTargetKeys = [];
+        const tempMockData = [];
+        for (let i = 0; i < 20; i++) {
+            const data = {
+                key: i.toString(),
+                title: `content${i + 1}`,
+                description: `description of content${i + 1}`,
+                chosen: i % 2 === 0,
+            };
+            if (data.chosen) {
+                tempTargetKeys.push(data.key);
+            }
+            tempMockData.push(data);
+        }
+        // setMockData(tempMockData);
+        setTargetKeys(tempTargetKeys);
+    };
+
+    const [chosenLaborers, setChosenLaborers] = useState([]);
+    const handleChange = (newTargetKeys, direction, moveKeys) => {
+        // console.log(newTargetKeys, direction, moveKeys);
+
+        let unselectedLaborers = [];
+        for (var k of laborersTableData) {
+            for (var l of newTargetKeys) {
+                if (k["key"] === l) unselectedLaborers.push(k);
+            }
+        }
+
+        const largerSet = new Set(
+            laborersTableData.map((item) => JSON.stringify(item))
+        );
+        const subsetSet = new Set(
+            unselectedLaborers.map((item) => JSON.stringify(item))
+        );
+        const missingObjects = [...largerSet]
+            .filter((item) => !subsetSet.has(item))
+            .map((item) => JSON.parse(item));
+
+        console.log(missingObjects);
+        let curLaborers = [];
+        for (var m of missingObjects) {
+            curLaborers.push(m["id"]);
+        }
+        setChosenLaborers([]);
+        setChosenLaborers(curLaborers);
+        setTargetKeys(newTargetKeys);
+    };
+
+    const renderItem = (item) => {
+        const customLabel = (
+            <span className="custom-item">
+                {item.firstName} {item.lastName}
+            </span>
+        );
+        return {
+            label: customLabel,
+            value: item.employeeID,
+        };
+    };
+
+    const [assigningModalOpen, setAssigningModalOpen] = useState(false);
+    const [isAssigning, setIsAssigning] = useState(false);
+    async function assignLaborers() {
+        setIsAssigning(true);
+        try {
+            let response = await axios.post(
+                `${API_BASE}/temp/requests/assign-laborers?requestId=${currentRequestID}`,
+                [...chosenLaborers],
+                {
+                    headers: {
+                        Authorization: `Bearer ${savedToken}`,
+                    },
+                }
+            );
+            if (response.status === 200 || response.status === 201) {
+                message.success(`Laborers Assigned Successfully`);
+                refreshAllData();
+                setIsAssigning(false);
+                setAssigningModalOpen(false);
+            }
+        } catch (e) {
+            message.error(`${e}`);
+            setIsAssigning(false);
+            setAssigningModalOpen(false);
+        }
     }
 
     const onChange = (key) => {
@@ -214,6 +332,7 @@ export default function PendingRequests() {
 
     async function refreshAllData() {
         setLoading(true);
+        setLaborersData([]);
         await getRequestInfoList();
         await getPendingRequests();
         await getTodaysRequests();
@@ -433,6 +552,17 @@ export default function PendingRequests() {
                                                                 <div className="flex flex-col justify-evenly">
                                                                     <div className="text-center flex">
                                                                         <p className="font-semibold pb-2 pr-2">
+                                                                            Request
+                                                                            ID —
+                                                                        </p>
+                                                                        <Tag color="purple">
+                                                                            {
+                                                                                record.id
+                                                                            }
+                                                                        </Tag>
+                                                                    </div>
+                                                                    <div className="text-center flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
                                                                             Requester
                                                                             —
                                                                         </p>
@@ -492,9 +622,14 @@ export default function PendingRequests() {
                                                         <Space size="middle">
                                                             <Button
                                                                 type="primary"
-                                                                onClick={(e) =>
-                                                                    checkAvailableLaborers()
-                                                                }
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    setRequestID(
+                                                                        record.id
+                                                                    );
+                                                                    checkAvailableLaborers();
+                                                                }}
                                                             >
                                                                 Assign
                                                             </Button>
@@ -672,6 +807,17 @@ export default function PendingRequests() {
                                                                 <div className="flex flex-col justify-evenly">
                                                                     <div className="text-center flex">
                                                                         <p className="font-semibold pb-2 pr-2">
+                                                                            Request
+                                                                            ID —
+                                                                        </p>
+                                                                        <Tag color="purple">
+                                                                            {
+                                                                                record.id
+                                                                            }
+                                                                        </Tag>
+                                                                    </div>
+                                                                    <div className="text-center flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
                                                                             Requester
                                                                             —
                                                                         </p>
@@ -731,9 +877,14 @@ export default function PendingRequests() {
                                                         <Space size="middle">
                                                             <Button
                                                                 type="primary"
-                                                                onClick={(e) =>
-                                                                    checkAvailableLaborers()
-                                                                }
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    setRequestID(
+                                                                        record.id
+                                                                    );
+                                                                    checkAvailableLaborers();
+                                                                }}
                                                             >
                                                                 Assign
                                                             </Button>
@@ -955,31 +1106,28 @@ export default function PendingRequests() {
                                                 key="action"
                                                 render={(_, record) => (
                                                     <Space size="middle">
-                                                        {record.isApproved ===
-                                                        false ? (
-                                                            <Button
-                                                                type="primary"
-                                                                colorPrimary="red"
-                                                                onClick={(e) =>
-                                                                    checkAvailableDate(
-                                                                        record
-                                                                    )
-                                                                }
-                                                            >
-                                                                Approve
-                                                            </Button>
-                                                        ) : (
-                                                            <Button
-                                                                danger
-                                                                onClick={(e) =>
-                                                                    openRejectModal(
-                                                                        record
-                                                                    )
-                                                                }
-                                                            >
-                                                                Reject
-                                                            </Button>
-                                                        )}
+                                                        <Button
+                                                            type="primary"
+                                                            colorPrimary="red"
+                                                            onClick={(e) =>
+                                                                checkAvailableDate(
+                                                                    record
+                                                                )
+                                                            }
+                                                        >
+                                                            Approve
+                                                        </Button>
+
+                                                        <Button
+                                                            danger
+                                                            onClick={(e) =>
+                                                                openRejectModal(
+                                                                    record
+                                                                )
+                                                            }
+                                                        >
+                                                            Reject
+                                                        </Button>
                                                     </Space>
                                                 )}
                                             />
@@ -990,6 +1138,41 @@ export default function PendingRequests() {
                         },
                     ]}
                 />
+            )}
+
+            {laborersData.length > 0 ? (
+                <div>
+                    <div className="font-semibold text-lg pb-5">
+                        Assign Available Laborers
+                    </div>
+                    <p className="pb-10 text-base">
+                        On the right section you can find the list of available
+                        laborers for you to assign. Simply select the laborers
+                        you want and move to the left section.
+                    </p>
+                    <Transfer
+                        dataSource={laborersTableData}
+                        listStyle={{
+                            width: 500,
+                            height: 400,
+                        }}
+                        targetKeys={targetKeys}
+                        onChange={handleChange}
+                        render={renderItem}
+                    />
+                    <div className="pt-5">
+                        <Button
+                            type="primary"
+                            onClick={(e) => {
+                                setAssigningModalOpen(true);
+                            }}
+                        >
+                            Proceed to Assign
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <div></div>
             )}
 
             {/* REJECT CONFIRMATION */}
@@ -1059,6 +1242,52 @@ export default function PendingRequests() {
                 )}
             >
                 <p> {approvalModalBodyContent} </p>
+            </Modal>
+
+            {/* CONFIRM ASSIGNMENT */}
+            <Modal
+                title={"Confirm Assignment"}
+                centered
+                open={assigningModalOpen}
+                onOk={() => assignLaborers()}
+                onCancel={() => setAssigningModalOpen(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <div className="flex gap-4 justify-end">
+                        {isAssigning === true ? (
+                            <div>
+                                <Spin
+                                    indicator={
+                                        <LoadingOutlined
+                                            style={{
+                                                fontSize: 25,
+                                            }}
+                                            spin
+                                        />
+                                    }
+                                />
+                            </div>
+                        ) : (
+                            <OkBtn />
+                        )}
+                        <CancelBtn />
+                        {/* {gotNoLaborers === true ? (
+                            <div></div>
+                        ) : (
+                            <Button
+                                type="primary"
+                                onClick={() => {
+                                    approveRequest();
+                                }}
+                            >
+                                Confirm Approval
+                            </Button>
+                        )}
+
+                        {gotNoLaborers === true ? <OkBtn /> : <CancelBtn />} */}
+                    </div>
+                )}
+            >
+                <p> Continuing will proceed to assign laborers. </p>
             </Modal>
         </div>
     );

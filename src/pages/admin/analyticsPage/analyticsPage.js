@@ -5,7 +5,7 @@ import { Statistic } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
-import { Button, message, Modal, Space, Spin, Table, Tag } from "antd";
+import { Spin } from "antd";
 
 let costcenterVsManpower = [];
 let requestInfoList = [];
@@ -22,6 +22,7 @@ export default function AnalyticsPage() {
     async function getAnalytics() {
         let response = await axios.get(`${API_BASE}/Analytics`);
         setAnalytics(response.data);
+        console.log(response.data);
 
         let costcenterVsManpowerUnfiltered = [];
         for (var i of response.data["costcenterVsManpower"]) {

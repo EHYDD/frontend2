@@ -1,11 +1,11 @@
 import {
-    CalendarSearch,
+    Calendar,
     CirclePlus,
     LineChart,
     LogOut,
+    NotepadText,
     PersonStandingIcon,
     Plus,
-    Sparkle,
     User,
     UserSearch,
 } from "lucide-react";
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
                         </div>
                         <div onClick={(e) => changePage(3)}>
                             <SidePanelButton
-                                icon={<CalendarSearch />}
+                                icon={<Calendar />}
                                 title="Monthly Schedule"
                                 isSelected={currentPage === 3 ? true : false}
                             />
@@ -83,6 +83,13 @@ export default function AdminDashboard() {
                                 isSelected={currentPage === 4 ? true : false}
                             />
                         </div>
+                        <div onClick={(e) => changePage(8)}>
+                            <SidePanelButton
+                                icon={<NotepadText />}
+                                title="Appeals"
+                                isSelected={currentPage === 8 ? true : false}
+                            />
+                        </div>
                         <div onClick={(e) => changePage(5)}>
                             <SidePanelButton
                                 icon={<UserSearch />}
@@ -90,6 +97,7 @@ export default function AdminDashboard() {
                                 isSelected={currentPage === 5 ? true : false}
                             />
                         </div>
+
                         <div onClick={(e) => changePage(7)}>
                             <SidePanelButton
                                 icon={<PersonStandingIcon />}
@@ -102,13 +110,6 @@ export default function AdminDashboard() {
                                 icon={<Plus />}
                                 title="Add New Data"
                                 isSelected={currentPage === 6 ? true : false}
-                            />
-                        </div>
-                        <div onClick={(e) => changePage(8)}>
-                            <SidePanelButton
-                                icon={<Plus />}
-                                title="Appeals"
-                                isSelected={currentPage === 8 ? true : false}
                             />
                         </div>
                     </div>
