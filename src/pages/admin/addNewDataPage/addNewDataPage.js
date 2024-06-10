@@ -21,36 +21,20 @@ export default function AddNewDataPage() {
     const [serviceTypeList, setServiceTypeList] = useState([]);
 
     async function getLocations() {
-        let response = await axios.get(
-            `${API_BASE}/Location`,
-            {
-                headers: {
-                    Authorization: `Bearer ${savedToken}`,
-                },
+        let response = await axios.get(`${API_BASE}/Location`, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
             },
-            {
-                headers: {
-                    Authorization: `Bearer ${savedToken}`,
-                },
-            }
-        );
+        });
         setLocationList(response.data);
     }
 
     async function getCostCenters() {
-        let response = await axios.get(
-            `${API_BASE}/CostCenter`,
-            {
-                headers: {
-                    Authorization: `Bearer ${savedToken}`,
-                },
+        let response = await axios.get(`${API_BASE}/CostCenter`, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
             },
-            {
-                headers: {
-                    Authorization: `Bearer ${savedToken}`,
-                },
-            }
-        );
+        });
         setCostCenterList(response.data);
     }
 

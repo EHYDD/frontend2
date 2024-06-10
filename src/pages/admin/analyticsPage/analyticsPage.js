@@ -22,7 +22,6 @@ export default function AnalyticsPage() {
     async function getAnalytics() {
         let response = await axios.get(`${API_BASE}/Analytics`);
         setAnalytics(response.data);
-        console.log(response.data);
 
         let costcenterVsManpowerUnfiltered = [];
         for (var i of response.data["costcenterVsManpower"]) {
