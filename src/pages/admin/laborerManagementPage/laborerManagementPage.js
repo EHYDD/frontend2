@@ -289,16 +289,16 @@ export default function LaborerManagementPage() {
                         <></>
                     ) : (
                         <div className="flex gap-4">
-                            <input
+                            {/* <input
                                 type="file"
                                 accept=".xlsx, .xls, .csv"
                                 onChange={handleFileUpload}
-                            />
-                            {/* <Upload {...props}>
+                            /> */}
+                            <Upload {...props}>
                                 <Button icon={<UploadOutlined />}>
                                     Click to Upload
                                 </Button>
-                            </Upload> */}
+                            </Upload>
 
                             <Button
                                 type="primary"

@@ -8,7 +8,7 @@ function App() {
     return (
         <div>
             {isMobile ? (
-                <div className="bg-white w-full h-screen flex justify-center items-center text-center">
+                <div className="bg-green-50 w-full h-screen flex justify-center items-center text-center">
                     <div className="w-fit h-fit">
                         <img
                             src="./assets/airlines-logo.png"

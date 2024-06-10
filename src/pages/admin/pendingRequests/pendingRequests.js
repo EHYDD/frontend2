@@ -1,5 +1,6 @@
 import {
     Button,
+    ConfigProvider,
     message,
     Modal,
     Popover,
@@ -47,9 +48,6 @@ export default function PendingRequests() {
                 },
             }
         );
-        console.log("===========");
-        console.log(response.data);
-        console.log("===========");
         setTodaysRequests(response.data);
         setLoading(false);
     }
@@ -77,7 +75,6 @@ export default function PendingRequests() {
         }
         setPendingRequests(tempOtherRequests);
         setPriorityRequests(tempPriorityRequests);
-        console.log(response.data);
     }
 
     const [currentRequestID, setRequestID] = useState(0);
@@ -93,10 +90,7 @@ export default function PendingRequests() {
     const [isRejecting, setIsRejecting] = useState(0);
     async function rejectRequest() {
         setIsRejecting(true);
-        console.log(`${currentRequestID}`);
-        console.log(
-            `${API_BASE}/temp/requests/process-request/${currentRequestID}`
-        );
+
         let response = await axios.post(
             `${API_BASE}/temp/requests/process-request/${currentRequestID}`,
             {
@@ -146,7 +140,7 @@ export default function PendingRequests() {
                 <div>
                     <p>The next available slots for the request are:</p>
                     {response.data.map((value, index) => (
-                        <div>
+                        <div className="hover:bg-zinc-200 rounded-lg px-4 py-2 flex justify-center cursor-pointer w-fit">
                             <Tag color="green">
                                 {moment(value["start"]).format(
                                     "MMMM Do YYYY, h:mm a"
@@ -215,7 +209,7 @@ export default function PendingRequests() {
     }
 
     const onChange = (key) => {
-        console.log(key);
+        // console.log(key);
     };
 
     async function refreshAllData() {
@@ -226,10 +220,14 @@ export default function PendingRequests() {
         setLoading(false);
     }
 
+    async function initialCalls() {
+        await getRequestInfoList();
+        await getPendingRequests();
+        await getTodaysRequests();
+    }
+
     useEffect(() => {
-        getRequestInfoList();
-        getPendingRequests();
-        getTodaysRequests();
+        initialCalls();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -241,13 +239,24 @@ export default function PendingRequests() {
                 review each request and respond appropriately.
             </p>
             <div className="pb-8">
-                <Button
-                    type="primary"
-                    icon={<UndoOutlined />}
-                    onClick={(e) => refreshAllData()}
+                <ConfigProvider
+                    theme={{
+                        components: {
+                            Button: {
+                                colorPrimary: "lightGreen",
+                                primaryColor: "black",
+                            },
+                        },
+                    }}
                 >
-                    Refresh All Data
-                </Button>
+                    <Button
+                        type="primary"
+                        icon={<UndoOutlined />}
+                        onClick={(e) => refreshAllData()}
+                    >
+                        Refresh All Data
+                    </Button>
+                </ConfigProvider>
             </div>
 
             {isLoading === true ? (
@@ -959,16 +968,33 @@ export default function PendingRequests() {
                                                     <Space size="middle">
                                                         {record.isApproved ===
                                                         false ? (
-                                                            <Button
-                                                                type="primary"
-                                                                onClick={(e) =>
-                                                                    checkAvailableDate(
-                                                                        record
-                                                                    )
-                                                                }
+                                                            <ConfigProvider
+                                                                theme={{
+                                                                    components:
+                                                                        {
+                                                                            Button: {
+                                                                                colorPrimary:
+                                                                                    "lightGreen",
+                                                                                primaryColor:
+                                                                                    "black",
+                                                                            },
+                                                                        },
+                                                                }}
                                                             >
-                                                                Approve
-                                                            </Button>
+                                                                <Button
+                                                                    type="primary"
+                                                                    colorPrimary="red"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) =>
+                                                                        checkAvailableDate(
+                                                                            record
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Approve
+                                                                </Button>
+                                                            </ConfigProvider>
                                                         ) : (
                                                             <Button
                                                                 danger

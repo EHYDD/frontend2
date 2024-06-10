@@ -199,7 +199,7 @@ export default function LoginPage() {
                     className="m-auto w-full object-cover"
                 />
             </div>
-            <div className="w-1/2 h-screen flex items-center bg-white">
+            <div className="w-1/2 h-screen flex items-center bg-green-50">
                 <div className="w-1/2 grid p-10 mx-auto">
                     <img
                         src="./assets/airlines-logo.png"

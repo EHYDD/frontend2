@@ -39,6 +39,13 @@ export default function UserDashboard() {
                                 isSelected={currentPage === 1 ? true : false}
                             />
                         </div>
+                        {/* <div onClick={(e) => changePage(3)}>
+                            <SidePanelButton
+                                icon={<LucideReceiptText />}
+                                title="Feedbacks"
+                                isSelected={currentPage === 3 ? true : false}
+                            />
+                        </div> */}
                         <div onClick={(e) => changePage(2)}>
                             <SidePanelButton
                                 icon={<LucideReceiptText />}

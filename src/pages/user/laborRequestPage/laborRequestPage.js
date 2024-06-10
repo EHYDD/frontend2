@@ -181,7 +181,7 @@ export default function LaborRequestPage({ changePage }) {
                     Labor Request Form
                 </div>
 
-                <div className="pb-12 text-base">
+                <div className="pb-12 text-base text-justify">
                     Welcome to the Labor Request module of our airline's labor
                     management platform! This module is designed to facilitate
                     the seamless allocation of manpower for various tasks within
