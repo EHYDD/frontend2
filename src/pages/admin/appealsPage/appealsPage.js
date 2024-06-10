@@ -51,8 +51,14 @@ export default function AppealsPage() {
                 </div>
             ) : (
                 <div>
+                    {/* <Table datasource={appeals}> */}
                     <Table dataSource={appeals}>
                         <Column
+                            title="Reason"
+                            dataIndex="reason"
+                            key="reason"
+                        />
+                        {/* <Column
                             title="User Email"
                             dataIndex="userEmail"
                             key="userEmail"
@@ -71,7 +77,7 @@ export default function AppealsPage() {
                             title="Created At"
                             dataIndex="createdAt"
                             key="createdAt"
-                        />
+                        /> */}
                     </Table>
                 </div>
             )}

@@ -239,24 +239,13 @@ export default function PendingRequests() {
                 review each request and respond appropriately.
             </p>
             <div className="pb-8">
-                <ConfigProvider
-                    theme={{
-                        components: {
-                            Button: {
-                                colorPrimary: "lightGreen",
-                                primaryColor: "black",
-                            },
-                        },
-                    }}
+                <Button
+                    type="primary"
+                    icon={<UndoOutlined />}
+                    onClick={(e) => refreshAllData()}
                 >
-                    <Button
-                        type="primary"
-                        icon={<UndoOutlined />}
-                        onClick={(e) => refreshAllData()}
-                    >
-                        Refresh All Data
-                    </Button>
-                </ConfigProvider>
+                    Refresh All Data
+                </Button>
             </div>
 
             {isLoading === true ? (
@@ -968,33 +957,17 @@ export default function PendingRequests() {
                                                     <Space size="middle">
                                                         {record.isApproved ===
                                                         false ? (
-                                                            <ConfigProvider
-                                                                theme={{
-                                                                    components:
-                                                                        {
-                                                                            Button: {
-                                                                                colorPrimary:
-                                                                                    "lightGreen",
-                                                                                primaryColor:
-                                                                                    "black",
-                                                                            },
-                                                                        },
-                                                                }}
+                                                            <Button
+                                                                type="primary"
+                                                                colorPrimary="red"
+                                                                onClick={(e) =>
+                                                                    checkAvailableDate(
+                                                                        record
+                                                                    )
+                                                                }
                                                             >
-                                                                <Button
-                                                                    type="primary"
-                                                                    colorPrimary="red"
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
-                                                                        checkAvailableDate(
-                                                                            record
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    Approve
-                                                                </Button>
-                                                            </ConfigProvider>
+                                                                Approve
+                                                            </Button>
                                                         ) : (
                                                             <Button
                                                                 danger
