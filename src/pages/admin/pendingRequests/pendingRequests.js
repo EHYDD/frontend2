@@ -172,28 +172,33 @@ export default function PendingRequests() {
     }
 
     async function approveRequest() {
-        let response = await axios.post(
-            `${API_BASE}/temp/requests/process-request/${requestObject.id}`,
-            {
-                id: requestObject.id,
-                status: true,
-                start: startDate,
-                end: endDate,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${savedToken}`,
+        try {
+            let response = await axios.post(
+                `${API_BASE}/temp/requests/process-request/${requestObject.id}`,
+                {
+                    id: requestObject.id,
+                    status: true,
+                    start: startDate,
+                    end: endDate,
                 },
+                {
+                    headers: {
+                        Authorization: `Bearer ${savedToken}`,
+                    },
+                }
+            );
+            if (response.status === 200 || response.status === 201) {
+                message.success("Request has been approved!");
+                getRequestInfoList();
+                getPendingRequests();
+                getTodaysRequests();
+            } else {
+                message.error("Failed to approve request!");
             }
-        );
-        if (response.status === 200 || response.status === 201) {
-            message.success("Request has been approved!");
-            getRequestInfoList();
-            getPendingRequests();
-            getTodaysRequests();
-        } else {
-            message.success("Failed to approve request!");
+        } catch (error) {
+            message.error(`Failed to approve request: ${error}`);
         }
+
         setApprovalModal2Open(false);
     }
 

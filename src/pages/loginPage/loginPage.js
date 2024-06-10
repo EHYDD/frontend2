@@ -4,7 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../../config/config";
-import { message, Modal, Spin } from "antd";
+import { Button, message, Modal, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 
@@ -153,6 +153,7 @@ export default function LoginPage() {
     }
 
     const [approvalModal2Open, setApprovalModal2Open] = useState(false);
+    const [isSendingAppeal, setIsSendingAppeal] = useState(false);
     async function sendAppeal() {
         let appealEmail = document.getElementById("appealEmail").value;
         let appealCostCenter =
@@ -178,6 +179,7 @@ export default function LoginPage() {
                 `Couldn't submmit appeal. Either you're not block or your account doesn't exist. \n Error: ${error}`
             );
         }
+        setIsSendingAppeal(false);
         setApprovalModal2Open(false);
     }
 
@@ -408,6 +410,35 @@ export default function LoginPage() {
                 open={approvalModal2Open}
                 onOk={() => sendAppeal()}
                 onCancel={() => setApprovalModal2Open(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        {isSendingAppeal === true ? (
+                            <div>
+                                <Spin
+                                    indicator={
+                                        <LoadingOutlined
+                                            style={{
+                                                fontSize: 25,
+                                            }}
+                                            spin
+                                        />
+                                    }
+                                />
+                            </div>
+                        ) : (
+                            <Button
+                                type="primary"
+                                onClick={() => {
+                                    setIsSendingAppeal();
+                                    sendAppeal();
+                                }}
+                            >
+                                Send Appeal
+                            </Button>
+                        )}
+                        <CancelBtn />
+                    </>
+                )}
             >
                 <div className="flex flex-col">
                     {/* EMAIL */}
