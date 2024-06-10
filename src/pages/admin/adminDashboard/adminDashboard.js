@@ -21,6 +21,7 @@ import UserManagementPage from "../userManagementPage/userManagementPage";
 import LaborerManagementPage from "../laborerManagementPage/laborerManagementPage";
 import AddNewDataPage from "../addNewDataPage/addNewDataPage";
 import AttendancePage from "../attendancePage/attendancePage";
+import AppealsPage from "../appealsPage/appealsPage";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -103,6 +104,13 @@ export default function AdminDashboard() {
                                 isSelected={currentPage === 6 ? true : false}
                             />
                         </div>
+                        <div onClick={(e) => changePage(8)}>
+                            <SidePanelButton
+                                icon={<Plus />}
+                                title="Appeals"
+                                isSelected={currentPage === 8 ? true : false}
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -137,6 +145,8 @@ export default function AdminDashboard() {
                             <AddNewDataPage />
                         ) : currentPage === 7 ? (
                             <AttendancePage />
+                        ) : currentPage === 8 ? (
+                            <AppealsPage />
                         ) : (
                             <div></div>
                         )}

@@ -25,7 +25,6 @@ export default function LaborerManagementPage() {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
-        // console.log(response);
         setLaborersList(response.data);
         setLoading(false);
     }
@@ -206,7 +205,7 @@ export default function LaborerManagementPage() {
                 firstName: addFirstName,
                 lastName: addLastName,
                 employeeID: addEmployeeID,
-                rfid: addRFID,
+                qrCode: addRFID,
                 status: 1,
                 laborerStatus: 1,
             },

@@ -1,4 +1,14 @@
-import { Button, Modal, Popover, Space, Spin, Table, Tabs, Tag } from "antd";
+import {
+    Button,
+    message,
+    Modal,
+    Popover,
+    Space,
+    Spin,
+    Table,
+    Tabs,
+    Tag,
+} from "antd";
 import Column from "antd/es/table/Column";
 import axios from "axios";
 import { API_BASE } from "../../../config/config";
@@ -6,6 +16,9 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import { LoadingOutlined, UndoOutlined } from "@ant-design/icons";
 
+var requestObject = {};
+var startDate = "";
+var endDate = "";
 export default function PendingRequests() {
     let savedToken = localStorage.getItem("token");
     const [isLoading, setLoading] = useState(true);
@@ -34,11 +47,15 @@ export default function PendingRequests() {
                 },
             }
         );
+        console.log("===========");
+        console.log(response.data);
+        console.log("===========");
         setTodaysRequests(response.data);
         setLoading(false);
     }
 
     const [pendingRequests, setPendingRequests] = useState([]);
+    const [priorityRequests, setPriorityRequests] = useState([]);
     async function getPendingRequests() {
         let response = await axios.get(
             `${API_BASE}/temp/requests/get-all-requests`,
@@ -48,7 +65,18 @@ export default function PendingRequests() {
                 },
             }
         );
-        setPendingRequests(response.data);
+
+        var tempPriorityRequests = [];
+        var tempOtherRequests = [];
+        for (var i of response.data) {
+            if (i["isPriority"] === true) {
+                tempPriorityRequests.push(i);
+            } else {
+                tempOtherRequests.push(i);
+            }
+        }
+        setPendingRequests(tempOtherRequests);
+        setPriorityRequests(tempPriorityRequests);
         console.log(response.data);
     }
 
@@ -57,7 +85,7 @@ export default function PendingRequests() {
         setRequestID(record.id);
         setModalMessage(`Are you sure you want to reject this request?`);
         setModalBodyContent(
-            `Rejecting this labor request stops "${record.createdBy}" from accessing ${record.serviceTypeId} service.`
+            `Rejecting this labor request stops "${record.createdBy}" from accessing services.`
         );
         setModal2Open(true);
     }
@@ -84,19 +112,78 @@ export default function PendingRequests() {
             }
         );
         if (response.status === 200 || response.status === 201) {
+            message.success("Request has been approved!");
             getPendingRequests();
             setIsRejecting(false);
-            setModal2Open(false);
+        } else {
+            message.success("Failed to approve request!");
         }
+        setModal2Open(false);
     }
 
+    const [approvalModalMessage, setApprovalModalMessage] = useState("");
+    const [approvalModal2Open, setApprovalModal2Open] = useState(false);
+    const [approvalModalBodyContent, setApprovalModalBodyContent] =
+        useState("");
+    const [gotNoLaborers, setGotNoLaborers] = useState(false);
     async function checkAvailableDate(record) {
-        let response = await axios.post(
-            `${API_BASE}/temp/requests/check-laborers-availability`,
+        requestObject = record;
+        setGotNoLaborers(false);
+        let response = await axios.get(
+            `${API_BASE}/temp/requests/check-laborers-availability?requiredManPower=${record.manPower}&date=${record.firstDate}&duration=${record.requestedduration}`,
             {
-                requiredManPower: record.manPower,
-                date: record.firstDate,
-                duration: record.requestedduration,
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        setApprovalModalMessage("Available Slots");
+
+        if (response.data.length > 0) {
+            startDate = moment(response.data[0]["start"]).format("YYYY-MM-DD");
+            endDate = moment(response.data[0]["end"]).format("YYYY-MM-DD");
+            setApprovalModalBodyContent(
+                <div>
+                    <p>The next available slots for the request are:</p>
+                    {response.data.map((value, index) => (
+                        <div>
+                            <Tag color="green">
+                                {moment(value["start"]).format(
+                                    "MMMM Do YYYY, h:mm a"
+                                )}
+                            </Tag>
+                            <span className="pr-3">to</span>
+                            <Tag color="green">
+                                {moment(value["end"]).format(
+                                    "MMMM Do YYYY, h:mm:ss a"
+                                )}
+                            </Tag>
+                        </div>
+                    ))}
+
+                    <p>Proceed?</p>
+                </div>
+            );
+        } else {
+            setGotNoLaborers(true);
+            setApprovalModalBodyContent(
+                <div>
+                    <p>There are no available laborers to proceed.</p>
+                </div>
+            );
+        }
+
+        setApprovalModal2Open(true);
+    }
+
+    async function approveRequest() {
+        let response = await axios.post(
+            `${API_BASE}/temp/requests/process-request/${requestObject.id}`,
+            {
+                id: requestObject.id,
+                status: true,
+                start: startDate,
+                end: endDate,
             },
             {
                 headers: {
@@ -104,7 +191,26 @@ export default function PendingRequests() {
                 },
             }
         );
-        // setPendingRequests(response.data);
+        if (response.status === 200 || response.status === 201) {
+            message.success("Request has been approved!");
+            getRequestInfoList();
+            getPendingRequests();
+            getTodaysRequests();
+        } else {
+            message.success("Failed to approve request!");
+        }
+        setApprovalModal2Open(false);
+    }
+
+    async function checkAvailableLaborers() {
+        let response = await axios.get(
+            `${API_BASE}/temp/requests/get-available-laborers-today`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         console.log(response.data);
     }
 
@@ -167,8 +273,239 @@ export default function PendingRequests() {
                             key: 1,
                             children: (
                                 <div>
-                                    Here are all priority requests pending for
-                                    approval
+                                    {isLoading === true ? (
+                                        <div>
+                                            <Spin
+                                                indicator={
+                                                    <LoadingOutlined
+                                                        style={{
+                                                            fontSize: 25,
+                                                        }}
+                                                        spin
+                                                    />
+                                                }
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <Table
+                                                dataSource={priorityRequests}
+                                            >
+                                                <Column
+                                                    title="Center ID"
+                                                    dataIndex="costCenterId"
+                                                    key="costCenterId"
+                                                    render={(_, record) =>
+                                                        requestInfoList[
+                                                            "costCenters"
+                                                        ].map(
+                                                            (value, index) => {
+                                                                return value[
+                                                                    "id"
+                                                                ] ===
+                                                                    record.costCenterId ? (
+                                                                    <Tag color="purple">
+                                                                        {
+                                                                            value[
+                                                                                "callCenterNumber"
+                                                                            ]
+                                                                        }
+                                                                    </Tag>
+                                                                ) : (
+                                                                    ""
+                                                                );
+                                                            }
+                                                        )
+                                                    }
+                                                />
+                                                <Column
+                                                    title="Location ID"
+                                                    dataIndex="locationId"
+                                                    key="locationId"
+                                                    render={(_, record) =>
+                                                        requestInfoList[
+                                                            "location"
+                                                        ].map(
+                                                            (value, index) => {
+                                                                return value[
+                                                                    "id"
+                                                                ] ===
+                                                                    record.locationId ? (
+                                                                    <Tag
+                                                                        color="cyan"
+                                                                        className="cursor-pointer"
+                                                                    >
+                                                                        {
+                                                                            value[
+                                                                                "locationName"
+                                                                            ]
+                                                                        }
+                                                                    </Tag>
+                                                                ) : (
+                                                                    ""
+                                                                );
+                                                            }
+                                                        )
+                                                    }
+                                                />
+                                                {/* <Column
+                                            title="Job Status"
+                                            dataIndex="jobStatus"
+                                            key="jobStatus"
+                                        /> */}
+                                                <Column
+                                                    title="Service Type ID"
+                                                    dataIndex="serviceTypeId"
+                                                    key="serviceTypeId"
+                                                    render={(_, record) =>
+                                                        requestInfoList[
+                                                            "serviceType"
+                                                        ].map(
+                                                            (value, index) => {
+                                                                return value[
+                                                                    "id"
+                                                                ] ===
+                                                                    record.serviceTypeId ? (
+                                                                    <div className="flex gap-2">
+                                                                        <Popover
+                                                                            content={
+                                                                                <div className="flex text-center">
+                                                                                    <p className="font-semibold pr-2">
+                                                                                        Payment
+                                                                                        Rate
+                                                                                        —
+                                                                                    </p>
+
+                                                                                    {
+                                                                                        value[
+                                                                                            "paymentRate"
+                                                                                        ]
+                                                                                    }
+                                                                                </div>
+                                                                            }
+                                                                            title=""
+                                                                            trigger="hover"
+                                                                        >
+                                                                            <Tag
+                                                                                color="green"
+                                                                                className="cursor-pointer"
+                                                                            >
+                                                                                {
+                                                                                    value[
+                                                                                        "title"
+                                                                                    ]
+                                                                                }
+                                                                            </Tag>
+                                                                        </Popover>
+                                                                    </div>
+                                                                ) : (
+                                                                    ""
+                                                                );
+                                                            }
+                                                        )
+                                                    }
+                                                />
+                                                <Column
+                                                    title="Man Power"
+                                                    dataIndex="manPower"
+                                                    key="manPower"
+                                                />
+                                                <Column
+                                                    title="Duration (hr)"
+                                                    dataIndex="requestedduration"
+                                                    key="requestedduration"
+                                                />
+                                                <Column
+                                                    title="Date"
+                                                    dataIndex="firstDate"
+                                                    key="firstDate"
+                                                />
+                                                {/* <Column
+                                                title="Second Date"
+                                                dataIndex="secondDate"
+                                                key="secondDate"
+                                            /> */}
+                                                <Column
+                                                    title="More Info"
+                                                    key="action"
+                                                    fixed="right"
+                                                    render={(_, record) => (
+                                                        <Popover
+                                                            content={
+                                                                <div className="flex flex-col justify-evenly">
+                                                                    <div className="text-center flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
+                                                                            Requester
+                                                                            —
+                                                                        </p>
+                                                                        <p>
+                                                                            {
+                                                                                record.createdBy
+                                                                            }
+                                                                        </p>
+                                                                    </div>
+                                                                    {record
+                                                                        .serviceRequestMessage
+                                                                        .length >
+                                                                    1 ? (
+                                                                        <div className="text-center flex">
+                                                                            <p className="font-semibold pb-2 pr-2">
+                                                                                Message
+                                                                                —
+                                                                            </p>
+                                                                            <p>
+                                                                                {
+                                                                                    record.serviceRequestMessage
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    ) : (
+                                                                        ""
+                                                                    )}
+
+                                                                    <div className="text-center pb-2 flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
+                                                                            Created
+                                                                            At —
+                                                                        </p>
+                                                                        <p>
+                                                                            {moment(
+                                                                                record.createdAt
+                                                                            ).format(
+                                                                                "MMMM Do YYYY, h:mm:ss a"
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            title=""
+                                                            trigger="hover"
+                                                        >
+                                                            <Button>
+                                                                More Info{" "}
+                                                            </Button>
+                                                        </Popover>
+                                                    )}
+                                                />
+                                                <Column
+                                                    title="Action"
+                                                    key="action"
+                                                    render={(_, record) => (
+                                                        <Space size="middle">
+                                                            <Button
+                                                                type="primary"
+                                                                onClick={(e) =>
+                                                                    checkAvailableLaborers()
+                                                                }
+                                                            >
+                                                                Assign
+                                                            </Button>
+                                                        </Space>
+                                                    )}
+                                                />
+                                            </Table>
+                                        </div>
+                                    )}
                                 </div>
                             ),
                         },
@@ -318,12 +655,9 @@ export default function PendingRequests() {
                                                     key="requestedduration"
                                                 />
                                                 <Column
-                                                    title="First Date"
+                                                    title="Date"
                                                     dataIndex="firstDate"
                                                     key="firstDate"
-                                                    render={(_, record) =>
-                                                        record.secondDate
-                                                    }
                                                 />
                                                 {/* <Column
                                                 title="Second Date"
@@ -397,7 +731,12 @@ export default function PendingRequests() {
                                                     key="action"
                                                     render={(_, record) => (
                                                         <Space size="middle">
-                                                            <Button type="primary">
+                                                            <Button
+                                                                type="primary"
+                                                                onClick={(e) =>
+                                                                    checkAvailableLaborers()
+                                                                }
+                                                            >
                                                                 Assign
                                                             </Button>
                                                         </Space>
@@ -654,7 +993,7 @@ export default function PendingRequests() {
                 />
             )}
 
-            {/* DELETE CONFIRMATION */}
+            {/* REJECT CONFIRMATION */}
             <Modal
                 title={modalMessage}
                 centered
@@ -692,6 +1031,35 @@ export default function PendingRequests() {
                 )}
             >
                 <p> {modalBodyContent} </p>
+            </Modal>
+
+            {/* CONFIRM APPROVAL */}
+            <Modal
+                title={approvalModalMessage}
+                centered
+                open={approvalModal2Open}
+                onOk={() => setApprovalModal2Open(false)}
+                onCancel={() => setApprovalModal2Open(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <div className="flex gap-4 justify-end">
+                        {gotNoLaborers === true ? (
+                            <div></div>
+                        ) : (
+                            <Button
+                                type="primary"
+                                onClick={() => {
+                                    approveRequest();
+                                }}
+                            >
+                                Confirm Approval
+                            </Button>
+                        )}
+
+                        {gotNoLaborers === true ? <OkBtn /> : <CancelBtn />}
+                    </div>
+                )}
+            >
+                <p> {approvalModalBodyContent} </p>
             </Modal>
         </div>
     );

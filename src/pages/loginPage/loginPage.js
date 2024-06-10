@@ -4,7 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../../config/config";
-import { message, Spin } from "antd";
+import { message, Modal, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 
@@ -36,12 +36,16 @@ export default function LoginPage() {
                 let token = response.data["token"];
                 console.log(token);
                 let decoded = jwtDecode(token);
+                console.log(decoded);
                 localStorage.setItem("token", token);
 
                 if (decoded["role"] === "Admin") {
                     setLoginError(false);
                     navigate("/adminDashboard");
-                } else if (decoded["role"] === "User") {
+                } else if (
+                    decoded["role"] === "User" ||
+                    decoded["role"] === "Vp"
+                ) {
                     setLoginError(false);
                     navigate("/dashboard");
                 } else {
@@ -147,6 +151,35 @@ export default function LoginPage() {
         setSignUp(!isSigningUp);
     }
 
+    const [approvalModal2Open, setApprovalModal2Open] = useState(false);
+    async function sendAppeal() {
+        let appealEmail = document.getElementById("appealEmail").value;
+        let appealCostCenter =
+            document.getElementById("appealCostCenter").value;
+        let appealReason = document.getElementById("appealReason").value;
+
+        try {
+            let response = await axios.post(`${API_BASE}/auth/appeal`, {
+                userEmail: appealEmail.toString().trim(),
+                costCenter: parseInt(appealCostCenter.toString().trim()),
+                reason: appealReason.toString().trim(),
+            });
+
+            if (response.status === 200 || response.status === 201) {
+                message.success("Appeal has been successfully submitted!");
+            } else {
+                message.error(
+                    "Couldn't submmit appeal. Either you're not block or your account doesn't exist."
+                );
+            }
+        } catch (error) {
+            message.error(
+                "Couldn't submmit appeal. Either you're not block or your account doesn't exist."
+            );
+        }
+        setApprovalModal2Open(false);
+    }
+
     return (
         <div className="flex h-screen overflow-hidden text-black">
             <div className="w-7/12 h-screen bg-zinc-900 grid items-center">
@@ -237,6 +270,7 @@ export default function LoginPage() {
                                     </span>
                                 </div>
                             </div>
+
                             {isSigningUp === false ? (
                                 <div
                                     className={
@@ -288,6 +322,7 @@ export default function LoginPage() {
                                     />
                                 </div>
                             )}
+
                             {isSigningUp === false ? (
                                 <div className="pt-2 mx-auto text-center">
                                     Don't have an account?{" "}
@@ -313,6 +348,19 @@ export default function LoginPage() {
                                     </span>
                                 </div>
                             )}
+
+                            <div className="pt-20 text-center">
+                                If you have received an email stating that you
+                                have been blocked. Please fill out{" "}
+                                <span
+                                    className="text-blue-500 hover:text-green-500 underline underline-offset-4 cursor-pointer"
+                                    onClick={(e) => setApprovalModal2Open(true)}
+                                >
+                                    {" "}
+                                    this appeal form{" "}
+                                </span>
+                                and explain your case to get your account back.
+                            </div>
                         </>
                     ) : (
                         <div className="flex flex-col">
@@ -351,6 +399,48 @@ export default function LoginPage() {
                     )}
                 </div>
             </div>
+
+            {/* APPEAL FORM */}
+            <Modal
+                title={"Appeal Form"}
+                centered
+                open={approvalModal2Open}
+                onOk={() => sendAppeal()}
+                onCancel={() => setApprovalModal2Open(false)}
+            >
+                <div className="flex flex-col">
+                    {/* EMAIL */}
+                    <label className="pb-2"> Email </label>
+                    <input
+                        id="appealEmail"
+                        type="email"
+                        placeholder="email..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+
+                    {/* Cost Center ID */}
+                    <label className="pb-2"> Cost Center Number </label>
+                    <input
+                        id="appealCostCenter"
+                        type="number"
+                        placeholder="cost center number..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+
+                    {/* EMAIL */}
+                    <label className="pb-2"> Reason </label>
+                    <textarea
+                        id="appealReason"
+                        rows={5}
+                        cols={10}
+                        placeholder="reason..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+                </div>
+            </Modal>
         </div>
     );
 }
