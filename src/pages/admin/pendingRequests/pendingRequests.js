@@ -945,8 +945,27 @@ export default function PendingRequests() {
                                                     key="action"
                                                     render={(_, record) => (
                                                         <Space size="middle">
-                                                            {record.laborersId
-                                                                .length > 0 ? (
+                                                            {record.laborersId ==
+                                                            null ? (
+                                                                <div>
+                                                                    <Button
+                                                                        type="primary"
+                                                                        onClick={(
+                                                                            e
+                                                                        ) => {
+                                                                            setRequestID(
+                                                                                record.id
+                                                                            );
+                                                                            checkAvailableLaborers();
+                                                                        }}
+                                                                    >
+                                                                        Assign
+                                                                    </Button>
+                                                                </div>
+                                                            ) : record
+                                                                  .laborersId
+                                                                  .length >
+                                                              0 ? (
                                                                 <Popover
                                                                     content={`${record.laborersId.length} laborer(s) have been assigned!`}
                                                                 >
