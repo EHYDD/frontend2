@@ -45,7 +45,7 @@ export default function LaborerManagementPage() {
         setEditModalBodyContent(
             <div>
                 <div className="flex flex-col">
-                    <label className="pb-2"> Employee ID </label>
+                    {/* <label className="pb-2"> Employee ID </label>
                     <input
                         id="editEmployeeID"
                         type="text"
@@ -53,8 +53,8 @@ export default function LaborerManagementPage() {
                         placeholder={record.employeeID}
                         className="border rounded-lg px-3 py-1 bg-white"
                     />
-                    <div className="h-5"></div>
-                    <label className="pb-2"> RFID </label>
+                    <div className="h-5"></div> */}
+                    {/* <label className="pb-2"> RFID </label>
                     <input
                         id="editRFID"
                         type="text"
@@ -62,8 +62,7 @@ export default function LaborerManagementPage() {
                         placeholder="RFID..."
                         className="border rounded-lg px-3 py-1 bg-white"
                     />
-                    <div className="h-5"></div>
-
+                    <div className="h-5"></div> */}
                     <label className="pb-2"> First Name </label>
                     <input
                         id="editFirstName"
@@ -90,7 +89,7 @@ export default function LaborerManagementPage() {
 
     async function editLaborer() {
         let editEmployeeIDNew = document.getElementById("editEmployeeID").value;
-        let editRFIDDNew = document.getElementById("editRFID").value;
+        // let editRFIDDNew = document.getElementById("editRFID").value;
         let editFirstName = document.getElementById("editFirstName").value;
         let editLastName = document.getElementById("editLastName").value;
 
@@ -103,7 +102,7 @@ export default function LaborerManagementPage() {
                 firstName: editFirstName.toString().trim(),
                 lastName: editLastName.toString().trim(),
                 employeeID: parseInt(editEmployeeIDNew.toString().trim()),
-                qrCode: parseInt(editRFIDDNew.toString().trim()),
+                // qrCode: parseInt(editRFIDDNew.toString().trim()),
                 status: 1,
                 laborerStatus: 1,
             },
@@ -180,14 +179,14 @@ export default function LaborerManagementPage() {
                     />
                     <div className="h-5"></div>
 
-                    <label className="pb-2"> RFID </label>
+                    {/* <label className="pb-2"> RFID </label>
                     <input
                         id="addRFID"
                         type="text"
                         placeholder="RFID..."
                         className="border rounded-lg px-3 py-1 bg-white"
                     />
-                    <div className="h-5"></div>
+                    <div className="h-5"></div> */}
                 </div>
             </div>
         );
@@ -197,7 +196,7 @@ export default function LaborerManagementPage() {
         let addFirstName = document.getElementById("addFirstName").value;
         let addLastName = document.getElementById("addLastName").value;
         let addEmployeeID = document.getElementById("addEmployeeID").value;
-        let addRFID = document.getElementById("addRFID").value;
+        // let addRFID = document.getElementById("addRFID").value;
 
         let response = await axios.post(
             `${API_BASE}/Laborers`,
@@ -205,7 +204,7 @@ export default function LaborerManagementPage() {
                 firstName: addFirstName,
                 lastName: addLastName,
                 employeeID: addEmployeeID,
-                qrCode: addRFID,
+                // qrCode: addRFID,
                 status: 1,
                 laborerStatus: 1,
             },
@@ -240,27 +239,27 @@ export default function LaborerManagementPage() {
         },
     };
 
-    const [data, setData] = useState([]);
-    async function handleFileUpload(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
+    // const [data, setData] = useState([]);
+    // async function handleFileUpload(event) {
+    //     const file = event.target.files[0];
+    //     const reader = new FileReader();
 
-        reader.onload = (e) => {
-            const binaryStr = e.target.result;
-            const workbook = XLSX.read(binaryStr, { type: "binary" });
+    //     reader.onload = (e) => {
+    //         const binaryStr = e.target.result;
+    //         const workbook = XLSX.read(binaryStr, { type: "binary" });
 
-            // Assuming the first sheet is the one we want to read
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const json = XLSX.utils.sheet_to_json(sheet);
-            console.log(json);
+    //         // Assuming the first sheet is the one we want to read
+    //         const sheetName = workbook.SheetNames[0];
+    //         const sheet = workbook.Sheets[sheetName];
+    //         const json = XLSX.utils.sheet_to_json(sheet);
+    //         console.log(json);
 
-            // Set the parsed data
-            setData(json);
-        };
+    //         // Set the parsed data
+    //         setData(json);
+    //     };
 
-        reader.readAsBinaryString(file);
-    }
+    //     reader.readAsBinaryString(file);
+    // }
 
     useEffect(() => {
         getLaborers();
@@ -377,14 +376,14 @@ export default function LaborerManagementPage() {
                             key="action"
                             render={(_, record) => (
                                 <Space size="middle">
-                                    <Button
+                                    {/* <Button
                                         type="primary"
                                         onClick={(e) =>
                                             openEditLaborerModal(record)
                                         }
                                     >
                                         Edit
-                                    </Button>
+                                    </Button> */}
                                     <Button
                                         danger
                                         onClick={(e) =>

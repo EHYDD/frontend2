@@ -179,6 +179,39 @@ export default function LoginPage() {
         setApprovalModal2Open(false);
     }
 
+    const [forgotPassword, setForgotPassword] = useState(false);
+    const [isForgettingPassword, setIsForgettingPassword] = useState(true);
+    const [forgotPasswordOTP, setForgetPasswortdOTP] = useState(false);
+    async function sendForgetPasswordOTP() {
+        setForgetPasswortdOTP(true);
+        setIsForgettingPassword(true);
+        let forgotEmail = document.getElementById("forgotEmail").value;
+
+        // let response = await axios.post(`${API_BASE}/auth/reset-password`, {
+        //     email: forgotEmail.toString().trim(),
+        // });
+
+        // if (response.status === 201 || response.status === 201) {
+        //     setForgetPasswortdOTP(true);
+        // }
+        setIsForgettingPassword(false);
+    }
+
+    const [forgotPasswordComplete, setForgotPasswordComplete] = useState([]);
+    async function confirmForgetPasswordOTP() {
+        let forgotEmail = document.getElementById("forgotEmail").value;
+        let forgotOTP = document.getElementById("forgotOTP").value;
+        document.getElementById("forgotOTP").value = " ";
+        let newPassword = document.getElementById("newPassword").value;
+        console.log(forgotEmail, forgotOTP, newPassword);
+        //  let response = await axios.post(`${API_BASE}/auth/reset-password-verify-otp`, {
+        //     email: forgotEmail.toString().trim(),
+        //     otp: forgotOTP.toString().trim(),
+        //     password: newPassword.toString().trim(),
+
+        // });
+    }
+
     return (
         <div className="flex h-screen overflow-hidden text-black">
             <div className="w-7/12 h-screen bg-zinc-900 grid items-center">
@@ -207,7 +240,72 @@ export default function LoginPage() {
                     />
                     <div className="h-5"></div>
 
-                    {isSendingOTP === false ? (
+                    {forgotPassword === true ? (
+                        forgotPasswordOTP === true ? (
+                            <div className="flex flex-col">
+                                {/* OTP */}
+                                <label className="pb-2"> OTP </label>
+                                <input
+                                    id="forgotOTP"
+                                    type="otp"
+                                    placeholder="otp..."
+                                    autoComplete="false"
+                                    autoCorrect="false"
+                                    className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                                />
+                                <div className="h-4"></div>
+                                <label className="pb-2"> New Password </label>
+                                <input
+                                    id="newPassword"
+                                    type="text"
+                                    placeholder="new password..."
+                                    className=" w-full border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                                />
+                                <div className="h-5"></div>
+                                <div
+                                    className="bg-zinc-900 hover:bg-green-500 text-white hover:text-black text-center rounded-lg py-2 font-semibold cursor-pointer"
+                                    onClick={(e) => confirmForgetPasswordOTP()}
+                                >
+                                    Confirm OTP
+                                </div>
+                                <div
+                                    className="pt-10 text-center text-blue-500 underline underline-offset-4 cursor-pointer"
+                                    onClick={(e) => {
+                                        setForgotPassword(false);
+                                    }}
+                                >
+                                    Go back
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col">
+                                {/* EMAIL */}
+                                <label className="pb-2"> Email </label>
+                                <input
+                                    id="forgotEmail"
+                                    type="email"
+                                    placeholder="email..."
+                                    className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                                />
+                                <div className="h-4"></div>
+
+                                <div
+                                    className="bg-zinc-900 hover:bg-green-500 text-white hover:text-black text-center rounded-lg py-2 font-semibold cursor-pointer"
+                                    onClick={(e) => sendForgetPasswordOTP()}
+                                >
+                                    Forgot Password
+                                </div>
+                                <div
+                                    className="pt-10 text-center text-blue-500 underline underline-offset-4 cursor-pointer"
+                                    onClick={(e) => {
+                                        setForgotPassword(false);
+                                    }}
+                                >
+                                    Go back
+                                </div>
+                            </div>
+                        )
+                    ) : isSendingOTP === false ? (
                         <>
                             <div className="flex flex-col">
                                 {/* EMAIL */}
@@ -264,7 +362,12 @@ export default function LoginPage() {
                                 )}
 
                                 <div className="text-right">
-                                    <span className="hover:underline hover:underline-offset-4 pr-2 hover:text-blue-500 cursor-pointer">
+                                    <span
+                                        className="hover:underline hover:underline-offset-4 pr-2 hover:text-blue-500 cursor-pointer"
+                                        onClick={(e) => {
+                                            setForgotPassword(true);
+                                        }}
+                                    >
                                         Forgot Password?
                                     </span>
                                 </div>

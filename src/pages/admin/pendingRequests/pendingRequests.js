@@ -65,6 +65,8 @@ export default function PendingRequests() {
             }
         );
 
+        console.log(response.data);
+
         var tempPriorityRequests = [];
         var tempOtherRequests = [];
         for (var i of response.data) {
@@ -107,11 +109,11 @@ export default function PendingRequests() {
             }
         );
         if (response.status === 200 || response.status === 201) {
-            message.success("Request has been approved!");
+            message.success("Request has been rejected!");
             getPendingRequests();
             setIsRejecting(false);
         } else {
-            message.success("Failed to approve request!");
+            message.success("Failed to reject request!");
         }
         setModal2Open(false);
     }
@@ -1224,28 +1226,31 @@ export default function PendingRequests() {
                                                 key="action"
                                                 render={(_, record) => (
                                                     <Space size="middle">
-                                                        <Button
-                                                            type="primary"
-                                                            colorPrimary="red"
-                                                            onClick={(e) =>
-                                                                checkAvailableDate(
-                                                                    record
-                                                                )
-                                                            }
-                                                        >
-                                                            Approve
-                                                        </Button>
-
-                                                        <Button
-                                                            danger
-                                                            onClick={(e) =>
-                                                                openRejectModal(
-                                                                    record
-                                                                )
-                                                            }
-                                                        >
-                                                            Reject
-                                                        </Button>
+                                                        {record.isApproved ===
+                                                        false ? (
+                                                            <Button
+                                                                type="primary"
+                                                                colorPrimary="red"
+                                                                onClick={(e) =>
+                                                                    checkAvailableDate(
+                                                                        record
+                                                                    )
+                                                                }
+                                                            >
+                                                                Approve
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                danger
+                                                                onClick={(e) =>
+                                                                    openRejectModal(
+                                                                        record
+                                                                    )
+                                                                }
+                                                            >
+                                                                Reject
+                                                            </Button>
+                                                        )}
                                                     </Space>
                                                 )}
                                             />
