@@ -28,6 +28,7 @@ export default function AttendancePage() {
     }
 
     useEffect(() => {
+        getAttendance();
         setInterval(getAttendance, 15000); // Refreshed every 15 seconds
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
