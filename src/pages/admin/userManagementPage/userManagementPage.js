@@ -130,13 +130,13 @@ export default function UserManagementPage() {
                                     <Tag color="purple">
                                         VP — {record.authorityLevel}
                                     </Tag>
-                                ) : record.authorityLevel > 3 ? (
+                                ) : record.authorityLevel > 0 ? (
                                     <Tag color="cyan">
                                         User — {record.authorityLevel}
                                     </Tag>
                                 ) : (
-                                    <Tag color="red">
-                                        Unknown — {record.authorityLevel}
+                                    <Tag color="cyan">
+                                        User — {record.authorityLevel}
                                     </Tag>
                                 );
                             }}

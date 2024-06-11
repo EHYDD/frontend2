@@ -1,10 +1,17 @@
-import { History, LogOut, LucideReceiptText, UserSearch } from "lucide-react";
+import {
+    History,
+    LogOut,
+    LucideReceiptText,
+    MessageCircleMore,
+    UserSearch,
+} from "lucide-react";
 import SidePanelButton from "../../../components/sidePanelButton";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import LaborRequestPage from "../laborRequestPage/laborRequestPage";
 import OrderHistory from "../orderHistory/orderHistoryPage";
 import TermsAndRules from "../termsAndRules/termsAndRules";
+import FeedbackPage from "../feedbackPage/feedbackPage";
 // import TermsAndRules from "../termsAndRules/termsAndRules";
 
 export default function UserDashboard() {
@@ -39,6 +46,13 @@ export default function UserDashboard() {
                                 isSelected={currentPage === 1 ? true : false}
                             />
                         </div>
+                        <div onClick={(e) => changePage(2)}>
+                            <SidePanelButton
+                                icon={<MessageCircleMore />}
+                                title="Feedbacks"
+                                isSelected={currentPage === 2 ? true : false}
+                            />
+                        </div>
                         {/* <div onClick={(e) => changePage(3)}>
                             <SidePanelButton
                                 icon={<LucideReceiptText />}
@@ -46,11 +60,11 @@ export default function UserDashboard() {
                                 isSelected={currentPage === 3 ? true : false}
                             />
                         </div> */}
-                        <div onClick={(e) => changePage(2)}>
+                        <div onClick={(e) => changePage(3)}>
                             <SidePanelButton
                                 icon={<LucideReceiptText />}
                                 title="Terms and Rules"
-                                isSelected={currentPage === 2 ? true : false}
+                                isSelected={currentPage === 3 ? true : false}
                             />
                         </div>
                     </div>
@@ -74,6 +88,8 @@ export default function UserDashboard() {
                             <LaborRequestPage changePage={changePage} />
                         ) : currentPage === 1 ? (
                             <OrderHistory />
+                        ) : currentPage === 2 ? (
+                            <FeedbackPage />
                         ) : (
                             <TermsAndRules />
                         )}

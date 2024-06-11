@@ -30,14 +30,12 @@ export default function LoginPage() {
                 email: email.toString().trim(),
                 password: password.toString().trim(),
             });
-            console.log(response.data);
 
             if (response.status === 200 || response.status === 201) {
                 setIsLoggingIn(false);
                 let token = response.data["token"];
                 console.log(token);
                 let decoded = jwtDecode(token);
-                console.log(decoded);
                 localStorage.setItem("token", token);
 
                 if (decoded["role"] === "Admin") {
@@ -79,7 +77,6 @@ export default function LoginPage() {
                 password: password.toString().trim(),
             });
 
-            console.log(response.status);
             setSendingOTP(true);
 
             if (response.status === 200 || response.status === 201) {
@@ -124,7 +121,6 @@ export default function LoginPage() {
             let token = response.data["token"];
             let decoded = jwtDecode(token);
             localStorage.setItem("token", token);
-            console.log(token);
 
             if (decoded["role"] === "Admin") {
                 setLoginError(false);

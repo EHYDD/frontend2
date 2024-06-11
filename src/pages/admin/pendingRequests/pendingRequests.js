@@ -140,7 +140,20 @@ export default function PendingRequests() {
             setApprovalModalBodyContent(
                 <div>
                     <p>The next available slots for the request are:</p>
-                    {response.data.map((value, index) => (
+                    <div className="hover:bg-zinc-200 rounded-lg px-4 py-2 flex justify-center cursor-pointer w-fit">
+                        <Tag color="green">
+                            {moment(response.data[0]["start"]).format(
+                                "MMMM Do YYYY, h:mm a"
+                            )}
+                        </Tag>
+                        <span className="pr-3">to</span>
+                        <Tag color="green">
+                            {moment(response.data[0]["end"]).format(
+                                "MMMM Do YYYY, h:mm:ss a"
+                            )}
+                        </Tag>
+                    </div>
+                    {/* {response.data.map((value, index) => (
                         <div className="hover:bg-zinc-200 rounded-lg px-4 py-2 flex justify-center cursor-pointer w-fit">
                             <Tag color="green">
                                 {moment(value["start"]).format(
@@ -154,7 +167,7 @@ export default function PendingRequests() {
                                 )}
                             </Tag>
                         </div>
-                    ))}
+                    ))} */}
 
                     <p>Proceed?</p>
                 </div>
@@ -242,24 +255,6 @@ export default function PendingRequests() {
 
     // const [mockData, setMockData] = useState([]);
     const [targetKeys, setTargetKeys] = useState([]);
-    const getMock = () => {
-        const tempTargetKeys = [];
-        const tempMockData = [];
-        for (let i = 0; i < 20; i++) {
-            const data = {
-                key: i.toString(),
-                title: `content${i + 1}`,
-                description: `description of content${i + 1}`,
-                chosen: i % 2 === 0,
-            };
-            if (data.chosen) {
-                tempTargetKeys.push(data.key);
-            }
-            tempMockData.push(data);
-        }
-        // setMockData(tempMockData);
-        setTargetKeys(tempTargetKeys);
-    };
 
     const [chosenLaborers, setChosenLaborers] = useState([]);
     const handleChange = (newTargetKeys, direction, moveKeys) => {
@@ -595,7 +590,34 @@ export default function PendingRequests() {
                                                                     ) : (
                                                                         ""
                                                                     )}
-
+                                                                    <div className="text-center pb-2 flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
+                                                                            Start
+                                                                            Time
+                                                                            —
+                                                                        </p>
+                                                                        <p>
+                                                                            {moment(
+                                                                                record.startTime
+                                                                            ).format(
+                                                                                "MMMM Do YYYY, h:mm:ss a"
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="text-center pb-2 flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
+                                                                            End
+                                                                            Time
+                                                                            —
+                                                                        </p>
+                                                                        <p>
+                                                                            {moment(
+                                                                                record.endTime
+                                                                            ).format(
+                                                                                "MMMM Do YYYY, h:mm:ss a"
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
                                                                     <div className="text-center pb-2 flex">
                                                                         <p className="font-semibold pb-2 pr-2">
                                                                             Created
@@ -625,19 +647,33 @@ export default function PendingRequests() {
                                                     key="action"
                                                     render={(_, record) => (
                                                         <Space size="middle">
-                                                            <Button
-                                                                type="primary"
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    setRequestID(
-                                                                        record.id
-                                                                    );
-                                                                    checkAvailableLaborers();
-                                                                }}
-                                                            >
-                                                                Assign
-                                                            </Button>
+                                                            {record.laborersId
+                                                                .length > 0 ? (
+                                                                <Popover
+                                                                    content={`${record.laborersId.length} laborer(s) have been assigned!`}
+                                                                >
+                                                                    <Tag
+                                                                        color="green"
+                                                                        className="cursor-pointer"
+                                                                    >
+                                                                        Assigned
+                                                                    </Tag>
+                                                                </Popover>
+                                                            ) : (
+                                                                <Button
+                                                                    type="primary"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        setRequestID(
+                                                                            record.id
+                                                                        );
+                                                                        checkAvailableLaborers();
+                                                                    }}
+                                                                >
+                                                                    Assign
+                                                                </Button>
+                                                            )}
                                                         </Space>
                                                     )}
                                                 />
@@ -850,7 +886,34 @@ export default function PendingRequests() {
                                                                     ) : (
                                                                         ""
                                                                     )}
-
+                                                                    <div className="text-center pb-2 flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
+                                                                            Start
+                                                                            Time
+                                                                            —
+                                                                        </p>
+                                                                        <p>
+                                                                            {moment(
+                                                                                record.startTime
+                                                                            ).format(
+                                                                                "MMMM Do YYYY, h:mm:ss a"
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="text-center pb-2 flex">
+                                                                        <p className="font-semibold pb-2 pr-2">
+                                                                            End
+                                                                            Time
+                                                                            —
+                                                                        </p>
+                                                                        <p>
+                                                                            {moment(
+                                                                                record.endTime
+                                                                            ).format(
+                                                                                "MMMM Do YYYY, h:mm:ss a"
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
                                                                     <div className="text-center pb-2 flex">
                                                                         <p className="font-semibold pb-2 pr-2">
                                                                             Created
@@ -880,19 +943,33 @@ export default function PendingRequests() {
                                                     key="action"
                                                     render={(_, record) => (
                                                         <Space size="middle">
-                                                            <Button
-                                                                type="primary"
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    setRequestID(
-                                                                        record.id
-                                                                    );
-                                                                    checkAvailableLaborers();
-                                                                }}
-                                                            >
-                                                                Assign
-                                                            </Button>
+                                                            {record.laborersId
+                                                                .length > 0 ? (
+                                                                <Popover
+                                                                    content={`${record.laborersId.length} laborer(s) have been assigned!`}
+                                                                >
+                                                                    <Tag
+                                                                        color="green"
+                                                                        className="cursor-pointer"
+                                                                    >
+                                                                        Assigned
+                                                                    </Tag>
+                                                                </Popover>
+                                                            ) : (
+                                                                <Button
+                                                                    type="primary"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        setRequestID(
+                                                                            record.id
+                                                                        );
+                                                                        checkAvailableLaborers();
+                                                                    }}
+                                                                >
+                                                                    Assign
+                                                                </Button>
+                                                            )}
                                                         </Space>
                                                     )}
                                                 />
@@ -1054,6 +1131,17 @@ export default function PendingRequests() {
                                                             <div className="flex flex-col justify-evenly">
                                                                 <div className="text-center flex">
                                                                     <p className="font-semibold pb-2 pr-2">
+                                                                        Request
+                                                                        ID —
+                                                                    </p>
+                                                                    <Tag color="purple">
+                                                                        {
+                                                                            record.id
+                                                                        }
+                                                                    </Tag>
+                                                                </div>
+                                                                <div className="text-center flex">
+                                                                    <p className="font-semibold pb-2 pr-2">
                                                                         Requester
                                                                         —
                                                                     </p>
@@ -1081,7 +1169,32 @@ export default function PendingRequests() {
                                                                 ) : (
                                                                     ""
                                                                 )}
-
+                                                                <div className="text-center pb-2 flex">
+                                                                    <p className="font-semibold pb-2 pr-2">
+                                                                        Start
+                                                                        Time —
+                                                                    </p>
+                                                                    <p>
+                                                                        {moment(
+                                                                            record.startTime
+                                                                        ).format(
+                                                                            "MMMM Do YYYY, h:mm:ss a"
+                                                                        )}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="text-center pb-2 flex">
+                                                                    <p className="font-semibold pb-2 pr-2">
+                                                                        End Time
+                                                                        —
+                                                                    </p>
+                                                                    <p>
+                                                                        {moment(
+                                                                            record.endTime
+                                                                        ).format(
+                                                                            "MMMM Do YYYY, h:mm:ss a"
+                                                                        )}
+                                                                    </p>
+                                                                </div>
                                                                 <div className="text-center pb-2 flex">
                                                                     <p className="font-semibold pb-2 pr-2">
                                                                         Created
