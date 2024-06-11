@@ -1,11 +1,12 @@
 import { BarChart, LineChart, PieChart } from "@mui/x-charts";
 import { API_BASE } from "../../../config/config";
 import CountUp from "react-countup";
-import { Statistic } from "antd";
+import { Button, message, Statistic } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 
 let costcenterVsManpower = [];
 let requestInfoList = [];
@@ -106,13 +107,110 @@ export default function AnalyticsPage() {
         getAnalytics();
     }
 
+    const FileDownload = require("js-file-download");
+    const [downloadingSalary, isDownloadingSalary] = useState(false);
+    async function downloadMonthlySalary() {
+        isDownloadingSalary(true);
+        try {
+            let response = await axios.get(
+                `${API_BASE}/Laborers/MonthlySalary`,
+                {
+                    responseType: "blob",
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${savedToken}`,
+                    },
+                }
+            );
+            FileDownload(response.data, "MonthlySalary.csv");
+            message.success("Monthly Salary Downloaded Successfully!");
+        } catch (e) {
+            message.error("Failed to download monthly salary!");
+        }
+        isDownloadingSalary(true);
+    }
+
+    const [downloadingBill, isDownloadingBill] = useState(false);
+    async function downloadMonthlyBill() {
+        isDownloadingBill(true);
+        try {
+            let response = await axios.get(
+                `${API_BASE}/Requests/MonthlyBill`,
+                {
+                    responseType: "blob",
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${savedToken}`,
+                    },
+                }
+            );
+            FileDownload(response.data, "MonthlyBill.csv");
+            message.success("Monthly Bill Downloaded Successfully!");
+        } catch (e) {
+            message.error("Failed to download monthly salary!");
+        }
+        isDownloadingBill(false);
+    }
+
     useEffect(() => {
         getRequestInfoList();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
-        <div className="p-10">
+        <div className="p-10 text-center">
             <div className="font-semibold text-lg pb-10"> Analytics </div>
+            <div className="pb-12 flex gap-4 justify-center">
+                {downloadingBill === true ? (
+                    <div>
+                        <Spin
+                            indicator={
+                                <LoadingOutlined
+                                    style={{
+                                        fontSize: 25,
+                                    }}
+                                    spin
+                                />
+                            }
+                        />
+                    </div>
+                ) : (
+                    <Button
+                        type="primary"
+                        icon={<DownloadOutlined />}
+                        onClick={(e) => {
+                            downloadMonthlyBill();
+                        }}
+                    >
+                        Download Monthly Bill
+                    </Button>
+                )}
+                {downloadingSalary === true ? (
+                    <div>
+                        <Spin
+                            indicator={
+                                <LoadingOutlined
+                                    style={{
+                                        fontSize: 25,
+                                    }}
+                                    spin
+                                />
+                            }
+                        />
+                    </div>
+                ) : (
+                    <Button
+                        type="primary"
+                        icon={<DownloadOutlined />}
+                        onClick={(e) => {
+                            downloadMonthlySalary();
+                        }}
+                    >
+                        Download Monthly Salary
+                    </Button>
+                )}
+            </div>
 
             {isLoading === true ? (
                 <div>
@@ -187,7 +285,7 @@ export default function AnalyticsPage() {
                         </div>
 
                         {/* COST CENTER vs MAN POWER */}
-                        <div className="flex flex-col justify-center pb-10 w-fit">
+                        <div className="flex flex-col justify-center pb-10 w-fit pl-20">
                             <div className="text-center pb-5 text-base">
                                 Cost Center vs Man Power
                             </div>
@@ -209,7 +307,7 @@ export default function AnalyticsPage() {
                         </div>
 
                         {/* SERVICE TYPE vs REQUESTS */}
-                        <div className="flex flex-col justify-center pb-10 w-fit pl-20">
+                        <div className="flex flex-col justify-center pb-10 w-fit pl-32">
                             <div className="text-center pb-5 text-base">
                                 Service Type vs Requests
                             </div>
