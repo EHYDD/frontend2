@@ -164,7 +164,9 @@ export default function LaborRequestPage({ changePage }) {
                 isOrderSuccessful(true);
             }
         } catch (e) {
-            message.error(`Failed to Send Request!`);
+            message.error(
+                `This request failed either due to an empty value or a wrong date!`
+            );
         }
         isSendingRequest(false);
     }
@@ -245,7 +247,10 @@ export default function LaborRequestPage({ changePage }) {
                                         <div className="pt-2 pb-3 pl-2 text-base font-semibold">
                                             Select Date
                                         </div>
-                                        <DatePicker id="dateChosen" />
+                                        <DatePicker
+                                            id="dateChosen"
+                                            // minDate={"2024-06-11"}
+                                        />
                                     </div>
                                 ),
                             },

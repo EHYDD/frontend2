@@ -221,45 +221,66 @@ export default function LaborerManagementPage() {
         }
     }
 
-    const props = {
-        name: "file",
-        action: `/Upload`,
-        headers: {
-            authorization: "authorization-text",
-        },
-        onChange(info) {
-            if (info.file.status !== "uploading") {
-                console.log(info.file, info.fileList);
+    // const props = {
+    //     name: "file",
+    //     action: `/Upload`,
+    //     headers: {
+    //         authorization: "authorization-text",
+    //     },
+    //     onChange(info) {
+    //         if (info.file.status !== "uploading") {
+    //             console.log(info.file, info.fileList);
+    //         }
+    //         if (info.file.status === "done") {
+    //             message.success(`${info.file.name} file uploaded successfully`);
+    //         } else if (info.file.status === "error") {
+    //             message.error(`${info.file.name} file upload failed.`);
+    //         }
+    //     },
+    // };
+
+    const [data, setData] = useState([]);
+    async function handleFileUpload(event) {
+        console.log(event.target.files[0]);
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const binaryStr = e.target.result;
+            const workbook = XLSX.read(binaryStr, { type: "binary" });
+
+            // Assuming the first sheet is the one we want to read
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(sheet);
+            console.log(json);
+
+            // Set the parsed data
+            setData(json);
+        };
+
+        reader.readAsBinaryString(file);
+
+        let response = await axios.post(
+            `${API_BASE}/Laborers/ReadFromCSV`,
+
+            data,
+
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
             }
-            if (info.file.status === "done") {
-                message.success(`${info.file.name} file uploaded successfully`);
-            } else if (info.file.status === "error") {
-                message.error(`${info.file.name} file upload failed.`);
-            }
-        },
-    };
-
-    // const [data, setData] = useState([]);
-    // async function handleFileUpload(event) {
-    //     const file = event.target.files[0];
-    //     const reader = new FileReader();
-
-    //     reader.onload = (e) => {
-    //         const binaryStr = e.target.result;
-    //         const workbook = XLSX.read(binaryStr, { type: "binary" });
-
-    //         // Assuming the first sheet is the one we want to read
-    //         const sheetName = workbook.SheetNames[0];
-    //         const sheet = workbook.Sheets[sheetName];
-    //         const json = XLSX.utils.sheet_to_json(sheet);
-    //         console.log(json);
-
-    //         // Set the parsed data
-    //         setData(json);
-    //     };
-
-    //     reader.readAsBinaryString(file);
-    // }
+        );
+        if (response.status === 200 || response.status === 201) {
+            try {
+                message.success(
+                    `${response.data["created"].length} laborers have been registered!`
+                );
+            } catch (e) {}
+        }
+        console.log(data);
+    }
 
     useEffect(() => {
         getLaborers();
@@ -293,11 +314,14 @@ export default function LaborerManagementPage() {
                                 accept=".xlsx, .xls, .csv"
                                 onChange={handleFileUpload}
                             /> */}
-                            <Upload {...props}>
+                            {/* <Upload
+                                // {...props}
+                                onChange={handleFileUpload}
+                            >
                                 <Button icon={<UploadOutlined />}>
                                     Click to Upload
                                 </Button>
-                            </Upload>
+                            </Upload> */}
 
                             <Button
                                 type="primary"

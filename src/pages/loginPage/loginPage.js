@@ -182,34 +182,44 @@ export default function LoginPage() {
     const [forgotPassword, setForgotPassword] = useState(false);
     const [isForgettingPassword, setIsForgettingPassword] = useState(true);
     const [forgotPasswordOTP, setForgetPasswortdOTP] = useState(false);
+    const [chosenEmail, setChosenEmail] = useState("");
     async function sendForgetPasswordOTP() {
+        // setIsForgettingPassword(true);
         setForgetPasswortdOTP(true);
-        setIsForgettingPassword(true);
         let forgotEmail = document.getElementById("forgotEmail").value;
+        setChosenEmail(forgotEmail);
 
-        // let response = await axios.post(`${API_BASE}/auth/reset-password`, {
-        //     email: forgotEmail.toString().trim(),
-        // });
+        let response = await axios.post(`${API_BASE}/auth/reset-password`, {
+            email: forgotEmail.toString().trim(),
+        });
 
-        // if (response.status === 201 || response.status === 201) {
-        //     setForgetPasswortdOTP(true);
-        // }
-        setIsForgettingPassword(false);
+        if (response.status === 201 || response.status === 201) {
+            setForgetPasswortdOTP(true);
+        }
+        // setIsForgettingPassword(false);
     }
 
     const [forgotPasswordComplete, setForgotPasswordComplete] = useState([]);
     async function confirmForgetPasswordOTP() {
-        let forgotEmail = document.getElementById("forgotEmail").value;
+        let forgotEmail = chosenEmail;
         let forgotOTP = document.getElementById("forgotOTP").value;
-        document.getElementById("forgotOTP").value = " ";
         let newPassword = document.getElementById("newPassword").value;
-        console.log(forgotEmail, forgotOTP, newPassword);
-        //  let response = await axios.post(`${API_BASE}/auth/reset-password-verify-otp`, {
-        //     email: forgotEmail.toString().trim(),
-        //     otp: forgotOTP.toString().trim(),
-        //     password: newPassword.toString().trim(),
-
-        // });
+        try {
+            let response = await axios.post(
+                `${API_BASE}/auth/reset-password-verify-otp`,
+                {
+                    email: forgotEmail.toString().trim(),
+                    otp: forgotOTP.toString().trim(),
+                    password: newPassword.toString().trim(),
+                }
+            );
+            if (response.status === 200 || response.status === 201) {
+                message.error("Password Successfully Reset!");
+                setForgotPassword(false);
+            }
+        } catch (e) {
+            message.error("Failed to reset password!");
+        }
     }
 
     return (
@@ -352,7 +362,7 @@ export default function LoginPage() {
                                     )}
                                 </div>
                             </div>
-                            <div className="flex justify-between pt-2 pb-8">
+                            <div className="flex justify-between pt-2 pb-3">
                                 {loginError === true ? (
                                     <div className="text-red-500 pl-2 text-left">
                                         Incorrect Username or Password
@@ -361,7 +371,7 @@ export default function LoginPage() {
                                     <div className="pb-6"> </div>
                                 )}
 
-                                <div className="text-right">
+                                {/* <div className="text-right">
                                     <span
                                         className="hover:underline hover:underline-offset-4 pr-2 hover:text-blue-500 cursor-pointer"
                                         onClick={(e) => {
@@ -370,7 +380,7 @@ export default function LoginPage() {
                                     >
                                         Forgot Password?
                                     </span>
-                                </div>
+                                </div> */}
                             </div>
 
                             {isSigningUp === false ? (

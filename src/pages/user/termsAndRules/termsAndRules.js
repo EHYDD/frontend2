@@ -120,7 +120,7 @@ export default function TermsAndRules() {
             </div>
 
             {/* AI */}
-            <div className="w-5/12 text-white p-5 bg-zinc-900 border-4 rounded-tr-2xl rounded-br-2xl">
+            {/* <div className="w-5/12 text-white p-5 bg-zinc-900 border-4 rounded-tr-2xl rounded-br-2xl">
                 <div className="h-full flex flex-col justify-between">
                     <div>
                         <div className="text-center pt-4 pb-8 text-base">
@@ -184,7 +184,7 @@ export default function TermsAndRules() {
                         />
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }
