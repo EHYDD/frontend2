@@ -23,22 +23,26 @@ export default function OrderHistory() {
         );
         setOrderHistory(response.data);
         console.log(response.data);
+        setIsLoading(false);
     }
 
     const [requestInfoList, setRequestInfoList] = useState(0);
     async function getRequestInfoList() {
         setIsLoading(true);
-        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
-            },
-        });
+        let response = await axios.get(
+            `${API_BASE}/temp/Requests/RequestInfoList`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         setRequestInfoList(response.data);
         setIsLoading(false);
     }
 
     useEffect(() => {
-        getRequestInfoList();
+        // getRequestInfoList();
         getOrderHistory();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -72,51 +76,33 @@ export default function OrderHistory() {
                         <Table dataSource={orderHistory}>
                             <Column
                                 title="Center ID"
-                                dataIndex="costCenterId"
-                                key="costCenterId"
-                                render={(_, record) =>
-                                    requestInfoList["costCenters"].map(
-                                        (value, index) => {
-                                            return value["id"] ===
-                                                record.costCenterId ? (
-                                                <Tag color="purple">
-                                                    {value["callCenterNumber"]}
-                                                </Tag>
-                                            ) : (
-                                                ""
-                                            );
-                                        }
-                                    )
-                                }
+                                dataIndex="costcenter"
+                                key="costcenter"
+                                render={(_, record) => (
+                                    <Tag color="purple">
+                                        {record.costcenter}
+                                    </Tag>
+                                )}
                             />
                             <Column
                                 title="Location ID"
-                                dataIndex="locationId"
-                                key="locationId"
-                                render={(_, record) =>
-                                    requestInfoList["location"].map(
-                                        (value, index) => {
-                                            return value["id"] ===
-                                                record.locationId ? (
-                                                <Tag
-                                                    color="cyan"
-                                                    className="cursor-pointer"
-                                                >
-                                                    {value["locationName"]}
-                                                </Tag>
-                                            ) : (
-                                                ""
-                                            );
-                                        }
-                                    )
-                                }
+                                dataIndex="location"
+                                key="location"
+                                render={(_, record) => (
+                                    <Tag
+                                        color="cyan"
+                                        className="cursor-pointer"
+                                    >
+                                        {record.location}
+                                    </Tag>
+                                )}
+                            />
+                            <Column
+                                title="Job Status"
+                                dataIndex="jobStatus"
+                                key="jobStatus"
                             />
                             {/* <Column
-                                            title="Job Status"
-                                            dataIndex="jobStatus"
-                                            key="jobStatus"
-                                        /> */}
-                            <Column
                                 title="Service Type ID"
                                 dataIndex="serviceTypeId"
                                 key="serviceTypeId"
@@ -158,7 +144,7 @@ export default function OrderHistory() {
                                         }
                                     )
                                 }
-                            />
+                            /> */}
                             <Column
                                 title="Approved"
                                 dataIndex="isApproved"

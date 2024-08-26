@@ -1,12 +1,15 @@
 import { BarChart, LineChart, PieChart } from "@mui/x-charts";
 import { API_BASE } from "../../../config/config";
 import CountUp from "react-countup";
-import { Button, message, Statistic } from "antd";
+import { Button, Statistic } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { LoadingOutlined } from "@ant-design/icons";
+import {
+    DownloadOutlined,
+    LoadingOutlined,
+    PlusOutlined,
+} from "@ant-design/icons";
 import { Spin } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
 
 let costcenterVsManpower = [];
 let requestInfoList = [];
@@ -97,61 +100,26 @@ export default function AnalyticsPage() {
     // const [requestInfoList, setRequestInfoList] = useState(0);
     async function getRequestInfoList() {
         setIsLoading(true);
-        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
+        let response = await axios.get(
+            `${API_BASE}/temp/Requests/RequestInfoList`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        // setRequestInfoList(response.data);
+        requestInfoList = response.data;
+        // getAnalytics();
+    }
+
+    async function downloadBill() {
+        let response = await axios.get(`${API_BASE}/Analytics/MonthlyBill`, {
             headers: {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
-        // setRequestInfoList(response.data);
-        requestInfoList = response.data;
-        getAnalytics();
-    }
-
-    const FileDownload = require("js-file-download");
-    const [downloadingSalary, isDownloadingSalary] = useState(false);
-    async function downloadMonthlySalary() {
-        isDownloadingSalary(true);
-        try {
-            let response = await axios.get(
-                `${API_BASE}/Laborers/MonthlySalary`,
-                {
-                    responseType: "blob",
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${savedToken}`,
-                    },
-                }
-            );
-            FileDownload(response.data, "MonthlySalary.csv");
-            message.success("Monthly Salary Downloaded Successfully!");
-        } catch (e) {
-            message.error("Failed to download monthly salary!");
-        }
-        isDownloadingSalary(true);
-    }
-
-    const [downloadingBill, isDownloadingBill] = useState(false);
-    async function downloadMonthlyBill() {
-        isDownloadingBill(true);
-        try {
-            let response = await axios.get(
-                `${API_BASE}/Requests/MonthlyBill`,
-                {
-                    responseType: "blob",
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${savedToken}`,
-                    },
-                }
-            );
-            FileDownload(response.data, "MonthlyBill.csv");
-            message.success("Monthly Bill Downloaded Successfully!");
-        } catch (e) {
-            message.error("Failed to download monthly salary!");
-        }
-        isDownloadingBill(false);
+        console.log(response.data);
     }
 
     useEffect(() => {
@@ -161,55 +129,15 @@ export default function AnalyticsPage() {
     return (
         <div className="p-10 text-center">
             <div className="font-semibold text-lg pb-10"> Analytics </div>
-            <div className="pb-12 flex gap-4 justify-center">
-                {downloadingBill === true ? (
-                    <div>
-                        <Spin
-                            indicator={
-                                <LoadingOutlined
-                                    style={{
-                                        fontSize: 25,
-                                    }}
-                                    spin
-                                />
-                            }
-                        />
-                    </div>
-                ) : (
-                    <Button
-                        type="primary"
-                        icon={<DownloadOutlined />}
-                        onClick={(e) => {
-                            downloadMonthlyBill();
-                        }}
-                    >
-                        Download Monthly Bill
-                    </Button>
-                )}
-                {downloadingSalary === true ? (
-                    <div>
-                        <Spin
-                            indicator={
-                                <LoadingOutlined
-                                    style={{
-                                        fontSize: 25,
-                                    }}
-                                    spin
-                                />
-                            }
-                        />
-                    </div>
-                ) : (
-                    <Button
-                        type="primary"
-                        icon={<DownloadOutlined />}
-                        onClick={(e) => {
-                            downloadMonthlySalary();
-                        }}
-                    >
-                        Download Monthly Salary
-                    </Button>
-                )}
+
+            <div className="pb-10">
+                <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={(e) => downloadBill()}
+                >
+                    Download Monthly Bill
+                </Button>
             </div>
 
             {isLoading === true ? (

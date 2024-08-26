@@ -84,11 +84,14 @@ export default function LaborRequestPage({ changePage }) {
         useState(true);
     async function getRequestInfoList() {
         setIsGettingRequestInfoList(true);
-        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
-            },
-        });
+        let response = await axios.get(
+            `${API_BASE}/temp/Requests/RequestInfoList`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         console.log(response.data);
         setRequestInfoList(response.data);
         setIsGettingRequestInfoList(false);
@@ -112,14 +115,14 @@ export default function LaborRequestPage({ changePage }) {
         selectService(selectedServiceObject);
     }
 
-    const [selectedCostCenter, selectCostCenter] = useState({});
-    async function setCostCenter(event) {
-        let selectedCostCenter = event.target.value;
-        let selectedCostCenterObject = requestInfoList.costCenters.find(
-            (costCenters) => costCenters.callCenterNumber === selectedCostCenter
-        );
-        selectCostCenter(selectedCostCenterObject);
-    }
+    // const [selectedCostCenter, selectCostCenter] = useState({});
+    // async function setCostCenter(event) {
+    //     let selectedCostCenter = event.target.value;
+    //     let selectedCostCenterObject = requestInfoList.costCenters.find(
+    //         (costCenters) => costCenters.callCenterNumber === selectedCostCenter
+    //     );
+    //     selectCostCenter(selectedCostCenterObject);
+    // }
 
     const [sendingRequest, isSendingRequest] = useState(false);
     const [orderSuccessful, isOrderSuccessful] = useState(false);
@@ -129,9 +132,11 @@ export default function LaborRequestPage({ changePage }) {
 
         let requestMessage = document.getElementById("message").value;
         let chosenDate = document.getElementById("dateChosen").value;
+        let chosenCostCenter = document.getElementById("userCostCenter").value;
+        let chosenLocation = document.getElementById("userLocation").value;
         console.log({
-            costCenterId: selectedCostCenter.id,
-            locationId: selectedLocation.id,
+            costCenter: chosenCostCenter,
+            location: chosenLocation,
             firstDate: chosenDate,
             // secondDate: "",
             manPower: laborersAmount,
@@ -143,13 +148,13 @@ export default function LaborRequestPage({ changePage }) {
             let response = await axios.post(
                 `${API_BASE}/temp/requests/create-request`,
                 {
-                    costCenterId: selectedCostCenter.id,
-                    locationId: selectedLocation.id,
+                    costCenter: chosenCostCenter,
+                    location: chosenLocation,
                     firstDate: chosenDate,
                     // secondDate: "",
                     manPower: laborersAmount,
                     requestedduration: duration,
-                    serviceTypeId: selectedService.id,
+                    servicetypeId: selectedService.id,
                     serviceRequestMessage: requestMessage.toString().trim(),
                 },
                 {
@@ -265,27 +270,13 @@ export default function LaborRequestPage({ changePage }) {
                                         <div className="pt-2 pb-2 pl-2 text-base font-semibold">
                                             Select Cost Center
                                         </div>
-                                        <select
-                                            className="select select-bordered w-full max-w-xs bg-white text-base"
-                                            onChange={(e) => setCostCenter(e)}
-                                        >
-                                            <option disabled selected>
-                                                Pick Cost Center
-                                            </option>
-                                            {requestInfoList["costCenters"].map(
-                                                (value, index) => {
-                                                    return (
-                                                        <option>
-                                                            {
-                                                                value[
-                                                                    "callCenterNumber"
-                                                                ]
-                                                            }
-                                                        </option>
-                                                    );
-                                                }
-                                            )}
-                                        </select>
+                                        <div className="pl-2 pt-2">
+                                            <input
+                                                id="userCostCenter"
+                                                className="bg-white text-black border rounded-lg outline-none px-4 py-2"
+                                                placeholder="cost center..."
+                                            ></input>
+                                        </div>
                                     </div>
                                 ),
                             },
@@ -300,27 +291,11 @@ export default function LaborRequestPage({ changePage }) {
                                         <div className="pt-2 pb-2 pl-2 text-base font-semibold">
                                             Select Location
                                         </div>
-                                        <select
-                                            className="select select-bordered w-full max-w-xs bg-white text-base"
-                                            onChange={(e) => setLocation(e)}
-                                        >
-                                            <option disabled selected>
-                                                Pick location
-                                            </option>
-                                            {requestInfoList["location"].map(
-                                                (value, index) => {
-                                                    return (
-                                                        <option>
-                                                            {
-                                                                value[
-                                                                    "locationName"
-                                                                ]
-                                                            }
-                                                        </option>
-                                                    );
-                                                }
-                                            )}
-                                        </select>
+                                        <input
+                                            id="userLocation"
+                                            className="bg-white text-black border rounded-lg outline-none px-4 py-2"
+                                            placeholder="cost center..."
+                                        ></input>
                                     </div>
                                 ),
                             },

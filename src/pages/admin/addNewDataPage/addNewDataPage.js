@@ -20,23 +20,23 @@ export default function AddNewDataPage() {
     const [costCenterList, setCostCenterList] = useState([]);
     const [serviceTypeList, setServiceTypeList] = useState([]);
 
-    async function getLocations() {
-        let response = await axios.get(`${API_BASE}/Location`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
-            },
-        });
-        setLocationList(response.data);
-    }
+    // async function getLocations() {
+    //     let response = await axios.get(`${API_BASE}/Location`, {
+    //         headers: {
+    //             Authorization: `Bearer ${savedToken}`,
+    //         },
+    //     });
+    //     setLocationList(response.data);
+    // }
 
-    async function getCostCenters() {
-        let response = await axios.get(`${API_BASE}/CostCenter`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
-            },
-        });
-        setCostCenterList(response.data);
-    }
+    // async function getCostCenters() {
+    //     let response = await axios.get(`${API_BASE}/CostCenter`, {
+    //         headers: {
+    //             Authorization: `Bearer ${savedToken}`,
+    //         },
+    //     });
+    //     setCostCenterList(response.data);
+    // }
 
     async function getServiceType() {
         let response = await axios.get(`${API_BASE}/ServiceType`, {
@@ -44,6 +44,7 @@ export default function AddNewDataPage() {
                 Authorization: `Bearer ${savedToken}`,
             },
         });
+        console.log(response.data);
         setServiceTypeList(response.data);
         setLoading(false);
     }
@@ -95,7 +96,7 @@ export default function AddNewDataPage() {
             }
         );
         message.success(`Location Deleted Successfully`);
-        getLocations();
+        // getLocations();
         setModal2Open(false);
     }
     async function deleteCostCenter() {
@@ -113,7 +114,7 @@ export default function AddNewDataPage() {
             }
         );
         message.success(`Cost Center Deleted Successfully`);
-        getCostCenters();
+        // getCostCenters();
         setModal2Open(false);
     }
     async function deleteServiceType() {
@@ -264,7 +265,7 @@ export default function AddNewDataPage() {
         );
         if (response.status === 200 || response.status === 201) {
             message.success(`Location Added Successfully`);
-            getLocations();
+            // getLocations();
             setAddModalOpen(false);
         }
     }
@@ -289,7 +290,7 @@ export default function AddNewDataPage() {
         );
         if (response.status === 200 || response.status === 201) {
             message.success(`Cost Center added Successfully`);
-            getCostCenters();
+            // getCostCenters();
             setAddModalOpen(false);
         }
     }
@@ -455,7 +456,7 @@ export default function AddNewDataPage() {
         );
         if (response.status === 200 || response.status === 201) {
             message.success(`Location Edited Successfully`);
-            getLocations();
+            // getLocations();
             setEditModalOpen(false);
         }
     }
@@ -482,7 +483,7 @@ export default function AddNewDataPage() {
         );
         if (response.status === 200 || response.status === 201) {
             message.success(`Cost Center Edited Successfully`);
-            getCostCenters();
+            // getCostCenters();
             setEditModalOpen(false);
         }
     }
@@ -523,15 +524,15 @@ export default function AddNewDataPage() {
 
     async function refreshAllData() {
         setLoading(true);
-        await getLocations();
-        await getCostCenters();
+        // await getLocations();
+        // await getCostCenters();
         await getServiceType();
         setLoading(false);
     }
 
     useEffect(() => {
-        getLocations();
-        getCostCenters();
+        // getLocations();
+        // getCostCenters();
         getServiceType();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -570,7 +571,7 @@ export default function AddNewDataPage() {
             ) : (
                 <div className="overflow-scroll no-scrollbar">
                     {/* LOCATION */}
-                    <div className="flex justify-between pb-5">
+                    {/* <div className="flex justify-between pb-5">
                         <div className="font-semibold text-lg pb-2">
                             Locations
                         </div>
@@ -645,10 +646,10 @@ export default function AddNewDataPage() {
                                 )}
                             />
                         </Table>
-                    </div>
+                    </div> */}
 
                     {/* COST CENTERS */}
-                    <div className="flex justify-between pt-14 pb-5">
+                    {/* <div className="flex justify-between pt-14 pb-5">
                         <div className="font-semibold text-lg pb-2">
                             Cost Centers
                         </div>
@@ -706,7 +707,7 @@ export default function AddNewDataPage() {
                                 )}
                             />
                         </Table>
-                    </div>
+                    </div> */}
 
                     {/* SERVICE TYPES */}
                     <div className="flex justify-between pt-14 pb-5">
@@ -739,12 +740,6 @@ export default function AddNewDataPage() {
                                 dataIndex="paymentRate"
                                 key="paymentRate"
                                 sorter={(a, b) => a.paymentRate - b.paymentRate}
-                            />
-                            <Column
-                                title="Overtime Rate"
-                                dataIndex="otRate"
-                                key="otRate"
-                                sorter={(a, b) => a.otRate - b.otRate}
                             />
                             <Column
                                 title="Action"

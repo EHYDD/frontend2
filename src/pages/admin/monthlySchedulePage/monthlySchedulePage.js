@@ -25,11 +25,14 @@ export default function MonthlySchedulePage() {
 
     const [requestInfoList, setRequestInfoList] = useState(0);
     async function getRequestInfoList() {
-        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
-            },
-        });
+        let response = await axios.get(
+            `${API_BASE}/temp/Requests/RequestInfoList`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
         setRequestInfoList(response.data);
     }
 

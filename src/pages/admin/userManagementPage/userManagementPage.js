@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { message, Modal, Spin, Tag } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { API_BASE } from "../../../config/config";
 import { Button, Space, Table } from "antd";
@@ -75,6 +75,84 @@ export default function UserManagementPage() {
         setModal2Open(true);
     }
 
+    const [addModalOpen, setAddModalOpen] = useState(false);
+    const [addModalMessage, setAddModalMessage] = useState("");
+    const [addModalBodyContent, setAddModalBodyContent] = useState("");
+
+    async function openAddLaborerModal() {
+        setAddModalMessage("Add New Admin");
+        setAddModalBodyContent(
+            <div>
+                <div className="flex flex-col">
+                    <label className="pb-2"> First Name </label>
+                    <input
+                        id="addFirstName"
+                        type="text"
+                        placeholder="first name..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+
+                    <label className="pb-2"> Last Name </label>
+                    <input
+                        id="addLastName"
+                        type="text"
+                        placeholder="last name..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+
+                    <label className="pb-2"> Employee ID </label>
+                    <input
+                        id="addEmployeeID"
+                        type="text"
+                        placeholder="employee ID..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div>
+
+                    {/* <label className="pb-2"> RFID </label>
+                    <input
+                        id="addRFID"
+                        type="text"
+                        placeholder="RFID..."
+                        className="border rounded-lg px-3 py-1 bg-white"
+                    />
+                    <div className="h-5"></div> */}
+                </div>
+            </div>
+        );
+        setAddModalOpen(true);
+    }
+
+    async function addAdmin() {
+        let addFirstName = document.getElementById("addFirstName").value;
+        let addLastName = document.getElementById("addLastName").value;
+        let addEmployeeID = document.getElementById("addEmployeeID").value;
+        // let addRFID = document.getElementById("addRFID").value;
+
+        let response = await axios.post(
+            `${API_BASE}/Laborers`,
+            {
+                firstName: addFirstName,
+                lastName: addLastName,
+                employeeID: addEmployeeID,
+                // qrCode: addRFID,
+                status: 1,
+                laborerStatus: 1,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        if (response.status === 200 || response.status === 201) {
+            message.success(`New Laborer Profile Created Successfully`);
+            setAddModalOpen(false);
+        }
+    }
+
     useEffect(() => {
         getApprovedUsers();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,6 +165,15 @@ export default function UserManagementPage() {
                 allows you to filter and sort the information using various
                 parameters, making it easy to locate specific orders based on
                 criteria such as date, status, man power and more.
+            </div>
+            <div className="pb-5 flex justify-end">
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={(e) => openAddLaborerModal()}
+                >
+                    New Admin
+                </Button>
             </div>
 
             {isLoading === true ? (
@@ -254,6 +341,23 @@ export default function UserManagementPage() {
                     Blocking this user will disable them from requesting any
                     service using this platform.
                 </p>
+            </Modal>
+
+            {/* ADD MODAL */}
+            <Modal
+                title={addModalMessage}
+                centered
+                open={addModalOpen}
+                onOk={() => addAdmin()}
+                onCancel={() => setAddModalOpen(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        <OkBtn />
+                        <CancelBtn />
+                    </>
+                )}
+            >
+                <p> {addModalBodyContent} </p>
             </Modal>
         </div>
     );

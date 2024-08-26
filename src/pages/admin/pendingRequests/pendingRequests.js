@@ -30,11 +30,15 @@ export default function PendingRequests() {
 
     const [requestInfoList, setRequestInfoList] = useState(0);
     async function getRequestInfoList() {
-        let response = await axios.get(`${API_BASE}/Requests/RequestInfoList`, {
-            headers: {
-                Authorization: `Bearer ${savedToken}`,
-            },
-        });
+        let response = await axios.get(
+            `${API_BASE}/temp/Requests/RequestInfoList`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+        console.log(response);
         setRequestInfoList(response.data);
     }
 
@@ -78,6 +82,23 @@ export default function PendingRequests() {
         }
         setPendingRequests(tempOtherRequests);
         setPriorityRequests(tempPriorityRequests);
+    }
+
+    const [exceptionalRequests, setExceptionalRequests] = useState([]);
+    async function getExceptionalRequests() {
+        let response = await axios.get(`${API_BASE}/ExceptionRequest`, {
+            headers: {
+                Authorization: `Bearer ${savedToken}`,
+            },
+        });
+
+        console.log(response.data);
+
+        var tempExceptionalRequests = [];
+        for (var i of response.data) {
+            tempExceptionalRequests.push(i);
+        }
+        setExceptionalRequests(tempExceptionalRequests);
     }
 
     const [currentRequestID, setRequestID] = useState(0);
@@ -184,6 +205,21 @@ export default function PendingRequests() {
         }
 
         setApprovalModal2Open(true);
+    }
+
+    async function approveExceptionalRequest(record) {
+        let response = await axios.get(
+            `${API_BASE}/ExceptionRequest/processExceptionRequest/${record.id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${savedToken}`,
+                },
+            }
+        );
+
+        console.log(response.data);
+
+        getExceptionalRequests();
     }
 
     async function approveRequest() {
@@ -344,6 +380,7 @@ export default function PendingRequests() {
     async function initialCalls() {
         await getRequestInfoList();
         await getPendingRequests();
+        await getExceptionalRequests();
         await getTodaysRequests();
     }
 
@@ -706,7 +743,7 @@ export default function PendingRequests() {
                                     ) : (
                                         <div>
                                             <Table dataSource={todaysRequests}>
-                                                <Column
+                                                {/* <Column
                                                     title="Center ID"
                                                     dataIndex="costCenterId"
                                                     key="costCenterId"
@@ -732,36 +769,19 @@ export default function PendingRequests() {
                                                             }
                                                         )
                                                     }
-                                                />
+                                                /> */}
                                                 <Column
                                                     title="Location ID"
                                                     dataIndex="locationId"
                                                     key="locationId"
-                                                    render={(_, record) =>
-                                                        requestInfoList[
-                                                            "location"
-                                                        ].map(
-                                                            (value, index) => {
-                                                                return value[
-                                                                    "id"
-                                                                ] ===
-                                                                    record.locationId ? (
-                                                                    <Tag
-                                                                        color="cyan"
-                                                                        className="cursor-pointer"
-                                                                    >
-                                                                        {
-                                                                            value[
-                                                                                "locationName"
-                                                                            ]
-                                                                        }
-                                                                    </Tag>
-                                                                ) : (
-                                                                    ""
-                                                                );
-                                                            }
-                                                        )
-                                                    }
+                                                    render={(_, record) => (
+                                                        <Tag
+                                                            color="cyan"
+                                                            className="cursor-pointer"
+                                                        >
+                                                            {record.location}
+                                                        </Tag>
+                                                    )}
                                                 />
                                                 {/* <Column
                                             title="Job Status"
@@ -940,7 +960,7 @@ export default function PendingRequests() {
                                                         </Popover>
                                                     )}
                                                 />
-                                                <Column
+                                                {/* <Column
                                                     title="Action"
                                                     key="action"
                                                     render={(_, record) => (
@@ -993,7 +1013,7 @@ export default function PendingRequests() {
                                                             )}
                                                         </Space>
                                                     )}
-                                                />
+                                                /> */}
                                             </Table>
                                         </div>
                                     )}
@@ -1020,7 +1040,7 @@ export default function PendingRequests() {
                                         </div>
                                     ) : (
                                         <Table dataSource={pendingRequests}>
-                                            <Column
+                                            {/* <Column
                                                 title="Center ID"
                                                 dataIndex="costCenterId"
                                                 key="costCenterId"
@@ -1028,53 +1048,35 @@ export default function PendingRequests() {
                                                     requestInfoList[
                                                         "costCenters"
                                                     ].map((value, index) => {
-                                                        return value["id"] ===
-                                                            record.costCenterId ? (
-                                                            <Tag color="purple">
-                                                                {
-                                                                    value[
-                                                                        "callCenterNumber"
-                                                                    ]
-                                                                }
-                                                            </Tag>
-                                                        ) : (
-                                                            ""
-                                                        );
+                                                        <Tag color="purple">
+                                                            {
+                                                                value[
+                                                                    "callCenterNumber"
+                                                                ]
+                                                            }
+                                                        </Tag>;
                                                     })
                                                 }
-                                            />
+                                            /> */}
                                             <Column
                                                 title="Location ID"
                                                 dataIndex="locationId"
                                                 key="locationId"
-                                                render={(_, record) =>
-                                                    requestInfoList[
-                                                        "location"
-                                                    ].map((value, index) => {
-                                                        return value["id"] ===
-                                                            record.locationId ? (
-                                                            <Tag
-                                                                color="cyan"
-                                                                className="cursor-pointer"
-                                                            >
-                                                                {
-                                                                    value[
-                                                                        "locationName"
-                                                                    ]
-                                                                }
-                                                            </Tag>
-                                                        ) : (
-                                                            ""
-                                                        );
-                                                    })
-                                                }
+                                                render={(_, record) => (
+                                                    <Tag
+                                                        color="cyan"
+                                                        className="cursor-pointer"
+                                                    >
+                                                        {record.location}
+                                                    </Tag>
+                                                )}
                                             />
                                             {/* <Column
                                             title="Job Status"
                                             dataIndex="jobStatus"
                                             key="jobStatus"
                                         /> */}
-                                            <Column
+                                            {/* <Column
                                                 title="Service Type ID"
                                                 dataIndex="serviceTypeId"
                                                 key="serviceTypeId"
@@ -1121,7 +1123,7 @@ export default function PendingRequests() {
                                                         );
                                                     })
                                                 }
-                                            />
+                                            /> */}
                                             <Column
                                                 title="Man Power"
                                                 dataIndex="manPower"
@@ -1252,6 +1254,114 @@ export default function PendingRequests() {
                                                                 colorPrimary="red"
                                                                 onClick={(e) =>
                                                                     checkAvailableDate(
+                                                                        record
+                                                                    )
+                                                                }
+                                                            >
+                                                                Approve
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                danger
+                                                                onClick={(e) =>
+                                                                    openRejectModal(
+                                                                        record
+                                                                    )
+                                                                }
+                                                            >
+                                                                Reject
+                                                            </Button>
+                                                        )}
+                                                    </Space>
+                                                )}
+                                            />
+                                        </Table>
+                                    )}
+                                </div>
+                            ),
+                        },
+                        {
+                            label: "Exception Approval",
+                            key: 3,
+                            children: (
+                                <div>
+                                    {isLoading === true ? (
+                                        <div>
+                                            <Spin
+                                                indicator={
+                                                    <LoadingOutlined
+                                                        style={{
+                                                            fontSize: 25,
+                                                        }}
+                                                        spin
+                                                    />
+                                                }
+                                            />
+                                        </div>
+                                    ) : (
+                                        <Table dataSource={exceptionalRequests}>
+                                            <Column
+                                                title="Center ID"
+                                                dataIndex="costcenter"
+                                                key="costcenter"
+                                                render={(_, record) => (
+                                                    <Tag color="purple">
+                                                        {record.costcenter}
+                                                    </Tag>
+                                                )}
+                                            />
+                                            <Column
+                                                title="Location ID"
+                                                dataIndex="location"
+                                                key="location"
+                                                render={(_, record) => (
+                                                    <Tag
+                                                        color="cyan"
+                                                        className="cursor-pointer"
+                                                    >
+                                                        {record.location}
+                                                    </Tag>
+                                                )}
+                                            />
+                                            <Column
+                                                title="Job Status"
+                                                dataIndex="jobStatus"
+                                                key="jobStatus"
+                                            />
+
+                                            <Column
+                                                title="Man Power"
+                                                dataIndex="manPower"
+                                                key="manPower"
+                                            />
+                                            <Column
+                                                title="Duration (hr)"
+                                                dataIndex="requestedduration"
+                                                key="requestedduration"
+                                            />
+                                            <Column
+                                                title="Date"
+                                                dataIndex="firstDate"
+                                                key="firstDate"
+                                            />
+                                            {/* <Column
+                                                title="Second Date"
+                                                dataIndex="secondDate"
+                                                key="secondDate"
+                                            /> */}
+
+                                            <Column
+                                                title="Action"
+                                                key="action"
+                                                render={(_, record) => (
+                                                    <Space size="middle">
+                                                        {record.isApproved ===
+                                                        false ? (
+                                                            <Button
+                                                                type="primary"
+                                                                colorPrimary="red"
+                                                                onClick={(e) =>
+                                                                    approveExceptionalRequest(
                                                                         record
                                                                     )
                                                                 }

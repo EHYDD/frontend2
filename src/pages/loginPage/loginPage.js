@@ -144,7 +144,9 @@ export default function LoginPage() {
     const [isSigningUp, setSignUp] = useState(false);
     function switchBetweenSignUpSignIn() {
         document.getElementById("email").value = "";
-        document.getElementById("password").value = "";
+        if (isSigningUp === false) {
+            document.getElementById("password").value = "";
+        }
         setSignUp(!isSigningUp);
     }
 
@@ -178,6 +180,11 @@ export default function LoginPage() {
         setIsSendingAppeal(false);
         setApprovalModal2Open(false);
     }
+
+    const [exceptionModal2Open, setExceptionModal2Open] = useState(false);
+    const [isExceptionLogingIn, setIsExceptionLogin] = useState(false);
+
+    async function exceptionLogin() {}
 
     const [forgotPassword, setForgotPassword] = useState(false);
     const [isForgettingPassword, setIsForgettingPassword] = useState(true);
@@ -318,6 +325,25 @@ export default function LoginPage() {
                     ) : isSendingOTP === false ? (
                         <>
                             <div className="flex flex-col">
+                                {isSigningUp === true ? (
+                                    <>
+                                        {/* FULL NAME */}
+                                        <label className="pb-2">
+                                            {" "}
+                                            Full Name{" "}
+                                        </label>
+                                        <input
+                                            id="fullname"
+                                            type="text"
+                                            placeholder="full name..."
+                                            className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                                        />
+                                        <div className="h-4"></div>
+                                    </>
+                                ) : (
+                                    <></>
+                                )}
+
                                 {/* EMAIL */}
                                 <label className="pb-2"> Email </label>
                                 <input
@@ -328,39 +354,48 @@ export default function LoginPage() {
                                 />
                                 <div className="h-4"></div>
 
-                                {/* PASSWORD */}
-                                <label className="pb-2"> Password </label>
-                                <div className="flex">
-                                    <input
-                                        id="password"
-                                        type={
-                                            hidePassword === true
-                                                ? "password"
-                                                : "text"
-                                        }
-                                        placeholder="password..."
-                                        className=" w-full border-2 rounded-lg px-3 py-1 bg-white outline-none"
-                                    />
-                                    <div className="h-2"></div>
+                                {isSigningUp === false ? (
+                                    <>
+                                        {/* PASSWORD */}
+                                        <label className="pb-2">
+                                            {" "}
+                                            Password{" "}
+                                        </label>
+                                        <div className="flex">
+                                            <input
+                                                id="password"
+                                                type={
+                                                    hidePassword === true
+                                                        ? "password"
+                                                        : "text"
+                                                }
+                                                placeholder="password..."
+                                                className=" w-full border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                                            />
+                                            <div className="h-2"></div>
 
-                                    {hidePassword === true ? (
-                                        <Eye
-                                            size={25}
-                                            className="pl-2 hover:text-blue-500 cursor-pointer"
-                                            onClick={(e) =>
-                                                hideUnhidePasswordFunc()
-                                            }
-                                        />
-                                    ) : (
-                                        <EyeOff
-                                            size={25}
-                                            className="pl-2 hover:text-blue-500 cursor-pointer"
-                                            onClick={(e) =>
-                                                hideUnhidePasswordFunc()
-                                            }
-                                        />
-                                    )}
-                                </div>
+                                            {hidePassword === true ? (
+                                                <Eye
+                                                    size={25}
+                                                    className="pl-2 hover:text-blue-500 cursor-pointer"
+                                                    onClick={(e) =>
+                                                        hideUnhidePasswordFunc()
+                                                    }
+                                                />
+                                            ) : (
+                                                <EyeOff
+                                                    size={25}
+                                                    className="pl-2 hover:text-blue-500 cursor-pointer"
+                                                    onClick={(e) =>
+                                                        hideUnhidePasswordFunc()
+                                                    }
+                                                />
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <></>
+                                )}
                             </div>
                             <div className="flex justify-between pt-2 pb-3">
                                 {loginError === true ? (
@@ -461,6 +496,14 @@ export default function LoginPage() {
                                 </div>
                             )}
 
+                            {/* Other Login */}
+                            <div
+                                onClick={(e) => setExceptionModal2Open(true)}
+                                className="text-center mt-4 hover:text-emerald-500 cursor-pointer"
+                            >
+                                <span> Exceptional Logins</span>
+                            </div>
+
                             <div className="pt-20 text-center">
                                 If you have received an email stating that you
                                 have been blocked. Please fill out{" "}
@@ -511,6 +554,100 @@ export default function LoginPage() {
                     )}
                 </div>
             </div>
+
+            {/* Exceptional Login */}
+            <Modal
+                title={"Exceptional Login"}
+                centered
+                open={exceptionModal2Open}
+                onOk={() => exceptionLogin()}
+                onCancel={() => setExceptionModal2Open(false)}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        {isExceptionLogingIn === true ? (
+                            <div>
+                                <Spin
+                                    indicator={
+                                        <LoadingOutlined
+                                            style={{
+                                                fontSize: 25,
+                                            }}
+                                            spin
+                                        />
+                                    }
+                                />
+                            </div>
+                        ) : (
+                            <Button
+                                type="primary"
+                                onClick={() => {
+                                    setIsExceptionLogin(true);
+                                    exceptionLogin();
+                                }}
+                            >
+                                Login
+                            </Button>
+                        )}
+                        <CancelBtn />
+                    </>
+                )}
+            >
+                <div className="flex flex-col">
+                    <label className="pb-2"> Full Name </label>
+                    <input
+                        id="excFullName"
+                        type="text"
+                        placeholder="full name..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+
+                    <label className="pb-2"> Email </label>
+                    <input
+                        id="excEmail"
+                        type="email"
+                        placeholder="email..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+
+                    <label className="pb-2"> ID </label>
+                    <input
+                        id="excID"
+                        type="text"
+                        placeholder="ID..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+
+                    <label className="pb-2"> Position </label>
+                    <input
+                        id="excPosition"
+                        type="text"
+                        placeholder="position..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+
+                    <label className="pb-2"> Manager Name </label>
+                    <input
+                        id="excManagerName"
+                        type="text"
+                        placeholder="manager name..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+
+                    <label className="pb-2"> Manager Email </label>
+                    <input
+                        id="excManagerEmail"
+                        type="text"
+                        placeholder="manager email..."
+                        className="border-2 rounded-lg px-3 py-1 bg-white outline-none"
+                    />
+                    <div className="h-4"></div>
+                </div>
+            </Modal>
 
             {/* APPEAL FORM */}
             <Modal
